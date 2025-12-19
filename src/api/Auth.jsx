@@ -17,3 +17,8 @@ export const verifyOtpApi = async (email, otp) => {
   });
   return res.data;
 };
+
+export const resendOtpApi = async (email) => {
+  const res = await client.post("/auth/resend-otp", { email });
+  return res.data;
+};

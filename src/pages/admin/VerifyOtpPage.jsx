@@ -2,6 +2,7 @@ import React, { useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { verifyOtpApi } from "../../api/Auth.jsx";
 import { toastSuccess, toastError } from "../../utils/toast.jsx";
+import { resendOtpApi } from "../../api/Auth.jsx";
 
 const VerifyOtpPage = () => {
   const { state } = useLocation();
@@ -10,6 +11,7 @@ const VerifyOtpPage = () => {
 
   const [otp, setOtp] = useState("");
   const inputsRef = useRef([]);
+  const [resendTimer, setResendTimer] = useState(0);
 
   const handleVerify = async () => {
     try {
@@ -23,6 +25,26 @@ const VerifyOtpPage = () => {
       navigate("/admin/login");
     } catch (err) {
       toastError(err?.response?.data?.message || "Invalid or expired OTP");
+    }
+  };
+
+  const handleResend = async () => {
+    try {
+      await resendOtpApi(email);
+      toastSuccess("OTP resent successfully");
+
+      setResendTimer(30);
+      const interval = setInterval(() => {
+        setResendTimer((prev) => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    } catch (err) {
+      toastError(err?.response?.data?.message || "Failed to resend OTP");
     }
   };
 
@@ -57,7 +79,6 @@ const VerifyOtpPage = () => {
     <div className="relative flex min-h-screen flex-col justify-center bg-gray-50 py-12">
       <div className="bg-white px-6 pt-10 pb-9 shadow-xl mx-auto w-full max-w-lg rounded-2xl">
         <div className="mx-auto flex w-full max-w-md flex-col space-y-14">
-
           {/* HEADER */}
           <div className="text-center space-y-2">
             <h1 className="font-semibold text-3xl">Email Verification</h1>
@@ -95,10 +116,18 @@ const VerifyOtpPage = () => {
 
             <div className="text-center text-sm text-gray-500">
               Didn’t receive code?{" "}
-              <span className="text-blue-600 cursor-pointer">Resend</span>
+              {resendTimer > 0 ? (
+                <span className="text-gray-400">Resend in {resendTimer}s</span>
+              ) : (
+                <span
+                  className="text-blue-600 cursor-pointer"
+                  onClick={handleResend}
+                >
+                  Resend
+                </span>
+              )}
             </div>
           </div>
-
         </div>
       </div>
     </div>
