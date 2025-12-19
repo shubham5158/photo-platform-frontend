@@ -41,10 +41,18 @@ const VerifyOtpPage = () => {
   };
 
   useEffect(() => {
-    if (resendTimer === 0) return;
+    if (resendTimer <= 0) return;
+
     const interval = setInterval(() => {
-      setResendTimer((t) => t - 1);
+      setResendTimer((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
     }, 1000);
+
     return () => clearInterval(interval);
   }, [resendTimer]);
 
@@ -92,14 +100,14 @@ const VerifyOtpPage = () => {
         <div className="text-center mt-4 text-sm text-gray-500">
           Didn’t receive code?{" "}
           {resendTimer > 0 ? (
-            <span>Resend in {resendTimer}s</span>
+            <span className="text-gray-400">Resend in {resendTimer}s</span>
           ) : (
-            <span
-              className="text-blue-600 cursor-pointer"
+            <button
               onClick={handleResend}
+              className="text-blue-600 font-medium"
             >
               Resend
-            </span>
+            </button>
           )}
         </div>
       </div>
