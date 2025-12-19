@@ -3,20 +3,34 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { verifyOtpApi, resendOtpApi } from "../../api/Auth.jsx";
 import { toastSuccess, toastError } from "../../utils/toast.jsx";
 
+const RESEND_DELAY = 30; // seconds (frontend only)
+
 const VerifyOtpPage = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
   const email = state?.email;
 
   const [otp, setOtp] = useState("");
-  const [resendTimer, setResendTimer] = useState(0);
+  const [timer, setTimer] = useState(RESEND_DELAY);
   const inputsRef = useRef([]);
+
+  // ⏱ start countdown
+  useEffect(() => {
+    if (timer <= 0) return;
+
+    const interval = setInterval(() => {
+      setTimer((t) => t - 1);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [timer]);
 
   const handleVerify = async () => {
     if (otp.length !== 6) {
       toastError("Enter 6 digit OTP");
       return;
     }
+
     try {
       await verifyOtpApi(email, otp);
       toastSuccess("Email verified successfully!");
@@ -28,33 +42,14 @@ const VerifyOtpPage = () => {
 
   const handleResend = async () => {
     try {
-      const res = await resendOtpApi(email);
-
-      toastSuccess(res.message || "OTP resent successfully");
+      await resendOtpApi(email);
+      toastSuccess("OTP resent successfully");
       setOtp("");
-
-      // 👇 use backend value
-      setResendTimer(res.resendAfter || 30);
+      setTimer(RESEND_DELAY); // 🔁 restart timer
     } catch (err) {
       toastError(err?.response?.data?.message || "Failed to resend OTP");
     }
   };
-
-  useEffect(() => {
-    if (resendTimer <= 0) return;
-
-    const interval = setInterval(() => {
-      setResendTimer((prev) => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [resendTimer]);
 
   const handleChange = (e, index) => {
     const value = e.target.value.replace(/\D/g, "");
@@ -77,6 +72,7 @@ const VerifyOtpPage = () => {
           Code sent to <span className="font-semibold">{email}</span>
         </p>
 
+        {/* OTP INPUTS */}
         <div className="flex justify-center gap-3 mb-8">
           {[0, 1, 2, 3, 4, 5].map((i) => (
             <input
@@ -97,16 +93,16 @@ const VerifyOtpPage = () => {
           Verify Account
         </button>
 
+        {/* RESEND */}
         <div className="text-center mt-4 text-sm text-gray-500">
-          Didn’t receive code?{" "}
-          {resendTimer > 0 ? (
-            <span className="text-gray-400">Resend in {resendTimer}s</span>
+          {timer > 0 ? (
+            <span>Resend OTP in {timer}s</span>
           ) : (
             <button
               onClick={handleResend}
               className="text-blue-600 font-medium"
             >
-              Resend
+              Resend OTP
             </button>
           )}
         </div>
