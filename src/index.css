@@ -1,0 +1,135 @@
+@import "tailwindcss";
+
+body {
+  @apply bg-slate-100 text-slate-900;
+}
+
+input, button {
+  font-family: inherit;
+}
+
+/* Toast style overrides */
+.react-hot-toast {
+  font-family: inherit;
+}
+
+.react-hot-toast-success {
+  @apply bg-emerald-600 text-white shadow-lg rounded-lg px-4 py-2;
+}
+
+.react-hot-toast-error {
+  @apply bg-red-600 text-white shadow-lg rounded-lg px-4 py-2;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.35s ease-out;
+}
+
+body {
+  @apply bg-slate-100 text-slate-900;
+}
+
+input,
+button {
+  font-family: inherit;
+}
+
+@keyframes fadeInUp {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 1s ease forwards;
+}
+
+.animate-fadeIn {
+  animation: fadeIn 1.2s ease forwards;
+}
+
+.delay-150 {
+  animation-delay: 0.15s;
+}
+
+/* ================================
+   Client Landing Page Animations
+   (Moved from component)
+=================================*/
+
+/* Fade In Up */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Zoom In Background */
+@keyframes zoomIn {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.1);
+  }
+}
+
+/* Floating particles */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) translateX(0);
+  }
+  50% {
+    transform: translateY(-20px) translateX(10px);
+  }
+}
+
+/* Scroll Indicator */
+@keyframes scrollIndicator {
+  0%, 100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(8px);
+    opacity: 0.3;
+  }
+}
+
+/* Link Tailwind custom animation classes */
+.animate-fadeInUp {
+  animation: fadeInUp 1s ease-out both;
+}
+
+.animate-zoomIn {
+  animation: zoomIn 20s ease-in-out infinite alternate;
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-scrollIndicator {
+  animation: scrollIndicator 2s ease-in-out infinite;
+}
+
