@@ -28,10 +28,13 @@ const VerifyOtpPage = () => {
 
   const handleResend = async () => {
     try {
-      await resendOtpApi(email);
-      toastSuccess("OTP resent successfully");
+      const res = await resendOtpApi(email);
+
+      toastSuccess(res.message || "OTP resent successfully");
       setOtp("");
-      setResendTimer(30);
+
+      // 👇 use backend value
+      setResendTimer(res.resendAfter || 30);
     } catch (err) {
       toastError(err?.response?.data?.message || "Failed to resend OTP");
     }
