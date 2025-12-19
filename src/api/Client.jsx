@@ -4,6 +4,7 @@ const baseURL =
   window.location.hostname === "localhost"
     ? "http://localhost:5000/api"
     : import.meta.env.VITE_API_BASE_URL;
+    console.log(mport.meta.env.VITE_API_BASE_URL)
 
 const client = axios.create({
   baseURL,
