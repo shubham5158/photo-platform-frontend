@@ -1,9 +1,15 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+  useMemo
+} from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { verifyOtpApi, resendOtpApi } from "../../api/Auth.jsx";
 import { toastSuccess, toastError } from "../../utils/toast.jsx";
 
-const RESEND_DELAY = 30; // seconds (frontend only)
+const RESEND_DELAY = 30;
 
 const VerifyOtpPage = () => {
   const { state } = useLocation();
@@ -14,7 +20,9 @@ const VerifyOtpPage = () => {
   const [timer, setTimer] = useState(RESEND_DELAY);
   const inputsRef = useRef([]);
 
-  // ⏱ start countdown
+  const otpIndexes = useMemo(() => [0, 1, 2, 3, 4, 5], []);
+
+  /* ⏱ Timer */
   useEffect(() => {
     if (timer <= 0) return;
 
@@ -25,12 +33,12 @@ const VerifyOtpPage = () => {
     return () => clearInterval(interval);
   }, [timer]);
 
-  const handleVerify = async () => {
+  /* VERIFY */
+  const handleVerify = useCallback(async () => {
     if (otp.length !== 6) {
       toastError("Enter 6 digit OTP");
       return;
     }
-
     try {
       await verifyOtpApi(email, otp);
       toastSuccess("Email verified successfully!");
@@ -38,29 +46,35 @@ const VerifyOtpPage = () => {
     } catch (err) {
       toastError(err?.response?.data?.message || "Invalid or expired OTP");
     }
-  };
+  }, [otp, email, navigate]);
 
-  const handleResend = async () => {
+  /* RESEND */
+  const handleResend = useCallback(async () => {
     try {
       await resendOtpApi(email);
       toastSuccess("OTP resent successfully");
       setOtp("");
-      setTimer(RESEND_DELAY); // 🔁 restart timer
+      setTimer(RESEND_DELAY);
     } catch (err) {
       toastError(err?.response?.data?.message || "Failed to resend OTP");
     }
-  };
+  }, [email]);
 
-  const handleChange = (e, index) => {
+  /* OTP CHANGE */
+  const handleChange = useCallback((e, index) => {
     const value = e.target.value.replace(/\D/g, "");
     if (!value) return;
 
-    const arr = otp.split("");
-    arr[index] = value;
-    setOtp(arr.join("").slice(0, 6));
+    setOtp((prev) => {
+      const arr = prev.split("");
+      arr[index] = value;
+      return arr.join("").slice(0, 6);
+    });
 
-    if (index < 5) inputsRef.current[index + 1]?.focus();
-  };
+    if (index < 5) {
+      inputsRef.current[index + 1]?.focus();
+    }
+  }, []);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -74,7 +88,7 @@ const VerifyOtpPage = () => {
 
         {/* OTP INPUTS */}
         <div className="flex justify-center gap-3 mb-8">
-          {[0, 1, 2, 3, 4, 5].map((i) => (
+          {otpIndexes.map((i) => (
             <input
               key={i}
               ref={(el) => (inputsRef.current[i] = el)}
@@ -93,7 +107,6 @@ const VerifyOtpPage = () => {
           Verify Account
         </button>
 
-        {/* RESEND */}
         <div className="text-center mt-4 text-sm text-gray-500">
           {timer > 0 ? (
             <span>Resend OTP in {timer}s</span>
