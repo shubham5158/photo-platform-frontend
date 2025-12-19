@@ -42,7 +42,7 @@ const LoginPage = () => {
           </p>
           <button
             type="button"
-            className="bg-white text-indigo-800 px-4 py-2 rounded-2xl font-bold hover:bg-indigo-700 hover:text-white transition-all"
+            className="bg-white text-indigo-800 px-4 py-2 rounded-2xl font-bold hover:bg-indigo-700 hover:text-white hover:-translate-y-1 transition-all"
           >
             Get Started
           </button>
