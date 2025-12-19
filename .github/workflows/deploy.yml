@@ -21,7 +21,7 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
+          VITE_API_BASE_URL=https://lilfj8k4w8.execute-api.us-east-1.amazonaws.com
 
       - name: Upload to S3
         run: aws s3 sync dist s3://photo-platform-frontend --delete
