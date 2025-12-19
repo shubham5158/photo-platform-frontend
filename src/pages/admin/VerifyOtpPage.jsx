@@ -93,10 +93,6 @@ const VerifyOtpPage = () => {
               Verify Account
             </button>
 
-            <div className="text-center text-sm text-gray-500">
-              Didn’t receive code?{" "}
-              <span className="text-blue-600 cursor-pointer">Resend</span>
-            </div>
           </div>
 
         </div>
