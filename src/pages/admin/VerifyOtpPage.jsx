@@ -1,9 +1,7 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { verifyOtpApi, resendOtpApi } from "../../api/Auth.jsx";
+import { verifyOtpApi } from "../../api/Auth.jsx";
 import { toastSuccess, toastError } from "../../utils/toast.jsx";
-
-const RESEND_DELAY = 30; // seconds (frontend only)
 
 const VerifyOtpPage = () => {
   const { state } = useLocation();
@@ -11,28 +9,16 @@ const VerifyOtpPage = () => {
   const email = state?.email;
 
   const [otp, setOtp] = useState("");
-  const [timer, setTimer] = useState(RESEND_DELAY);
   const inputsRef = useRef([]);
 
-  // ⏱ start countdown
-  useEffect(() => {
-    if (timer <= 0) return;
-
-    const interval = setInterval(() => {
-      setTimer((t) => t - 1);
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [timer]);
-
   const handleVerify = async () => {
-    if (otp.length !== 6) {
-      toastError("Enter 6 digit OTP");
-      return;
-    }
-
     try {
-      await verifyOtpApi(email, otp);
+      if (!otp || otp.length !== 6) {
+        toastError("Enter 6 digit OTP");
+        return;
+      }
+
+      await verifyOtpApi(email, otp.trim());
       toastSuccess("Email verified successfully!");
       navigate("/admin/login");
     } catch (err) {
@@ -40,71 +26,79 @@ const VerifyOtpPage = () => {
     }
   };
 
-  const handleResend = async () => {
-    try {
-      await resendOtpApi(email);
-      toastSuccess("OTP resent successfully");
-      setOtp("");
-      setTimer(RESEND_DELAY); // 🔁 restart timer
-    } catch (err) {
-      toastError(err?.response?.data?.message || "Failed to resend OTP");
-    }
-  };
-
   const handleChange = (e, index) => {
     const value = e.target.value.replace(/\D/g, "");
     if (!value) return;
 
-    const arr = otp.split("");
-    arr[index] = value;
-    setOtp(arr.join("").slice(0, 6));
+    const newOtp = otp.split("");
+    newOtp[index] = value;
+    const finalOtp = newOtp.join("").slice(0, 6);
+    setOtp(finalOtp);
 
-    if (index < 5) inputsRef.current[index + 1]?.focus();
+    // move to next input
+    if (index < 5) {
+      inputsRef.current[index + 1]?.focus();
+    }
+  };
+
+  const handleKeyDown = (e, index) => {
+    if (e.key === "Backspace") {
+      const newOtp = otp.split("");
+      newOtp[index] = "";
+      setOtp(newOtp.join(""));
+
+      if (index > 0) {
+        inputsRef.current[index - 1]?.focus();
+      }
+    }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
-        <h1 className="text-3xl font-semibold text-center mb-2">
-          Email Verification
-        </h1>
-        <p className="text-center text-gray-400 mb-8">
-          Code sent to <span className="font-semibold">{email}</span>
-        </p>
+    <div className="relative flex min-h-screen flex-col justify-center bg-gray-50 py-12">
+      <div className="bg-white px-6 pt-10 pb-9 shadow-xl mx-auto w-full max-w-lg rounded-2xl">
+        <div className="mx-auto flex w-full max-w-md flex-col space-y-14">
 
-        {/* OTP INPUTS */}
-        <div className="flex justify-center gap-3 mb-8">
-          {[0, 1, 2, 3, 4, 5].map((i) => (
-            <input
-              key={i}
-              ref={(el) => (inputsRef.current[i] = el)}
-              maxLength={1}
-              value={otp[i] || ""}
-              onChange={(e) => handleChange(e, i)}
-              className="w-12 h-12 text-center border rounded-xl text-lg"
-            />
-          ))}
-        </div>
+          {/* HEADER */}
+          <div className="text-center space-y-2">
+            <h1 className="font-semibold text-3xl">Email Verification</h1>
+            <p className="text-sm text-gray-400">
+              We have sent a code to{" "}
+              <span className="font-semibold">{email || "your email"}</span>
+            </p>
+          </div>
 
-        <button
-          onClick={handleVerify}
-          className="w-full py-3 rounded-xl bg-blue-700 text-white font-semibold"
-        >
-          Verify Account
-        </button>
+          {/* OTP INPUTS */}
+          <div className="flex justify-center gap-3">
+            {[0, 1, 2, 3, 4, 5].map((i) => (
+              <input
+                key={i}
+                ref={(el) => (inputsRef.current[i] = el)}
+                type="text"
+                inputMode="numeric"
+                maxLength={1}
+                value={otp[i] || ""}
+                onChange={(e) => handleChange(e, i)}
+                onKeyDown={(e) => handleKeyDown(e, i)}
+                className="w-14 h-14 text-center text-lg rounded-xl border border-gray-300 outline-none focus:ring-2 focus:ring-blue-600"
+              />
+            ))}
+          </div>
 
-        {/* RESEND */}
-        <div className="text-center mt-4 text-sm text-gray-500">
-          {timer > 0 ? (
-            <span>Resend OTP in {timer}s</span>
-          ) : (
+          {/* ACTIONS */}
+          <div className="space-y-5">
             <button
-              onClick={handleResend}
-              className="text-blue-600 font-medium"
+              onClick={handleVerify}
+              className="w-full py-4 rounded-xl bg-blue-700 text-white font-semibold"
             >
-              Resend OTP
+              Verify Account
             </button>
-          )}
+
+            <div className="text-center text-sm text-gray-500">
+              Didn’t receive code?{" "}
+              <span className="text-blue-600 cursor-pointer">Resend</span>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
