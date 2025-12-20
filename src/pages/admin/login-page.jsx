@@ -33,7 +33,7 @@ const LoginPage = () => {
         className="hidden lg:flex w-1/2 justify-around items-center bg-cover bg-center"
         style={{
           backgroundImage:
-            "linear-gradient(rgba(0,0,0,.7),rgba(0,0,0,.7)),url(https://images.unsplash.com/photo-1650825556125-060e52d40bd0?auto=format&fit=crop&w=1170&q=80)"
+            "linear-gradient(rgba(0,0,0,.7),rgba(0,0,0,.7)),url(https://images.unsplash.com/photo-1650825556125-060e52d40bd0?auto=format&fit=crop&w=1170&q=80)",
         }}
       >
         <div className="w-full px-20 space-y-6">
@@ -92,6 +92,16 @@ const LoginPage = () => {
             >
               Login
             </button>
+
+            <p className="text-sm mt-4 text-slate-400 text-center">
+              Don’t have an account?{" "}
+              <span
+                className="text-amber-300 underline cursor-pointer"
+                onClick={() => navigate("/register")}
+              >
+                Create one
+              </span>
+            </p>
           </form>
         </div>
       </div>
