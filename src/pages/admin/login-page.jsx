@@ -88,7 +88,7 @@ const LoginPage = () => {
 
             <button
               type="submit"
-              className="block w-full bg-indigo-600 py-2 rounded-2xl text-white font-semibold"
+              className="block w-full bg-indigo-600 py-2 rounded-2xl text-white font-semibold mb-4 hover:-translate-y-1 transition-all"
             >
               Login
             </button>
@@ -96,7 +96,7 @@ const LoginPage = () => {
             <p className="text-sm mt-4 text-slate-400 text-center">
               Don’t have an account?{" "}
               <span
-                className="text-amber-300 underline cursor-pointer"
+                className="text-indigo-600 underline cursor-pointer font-semibold hover:underline ml-1"
                 onClick={() => navigate("/register")}
               >
                 Create one
