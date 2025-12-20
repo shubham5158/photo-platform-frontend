@@ -57,6 +57,10 @@ const LoginPage = () => {
               Admin Login
             </h1>
 
+            <p className="text-sm font-normal text-gray-600 mb-8">
+              Secure Login
+            </p>
+
             <div className="flex items-center border-2 mb-6 py-2 px-3 rounded-2xl">
               <input
                 className="pl-2 w-full outline-none border-none"
