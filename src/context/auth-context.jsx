@@ -1,57 +1,75 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+} from "react";
 import { loginApi, registerApi } from "../api/Auth.jsx";
 import { getProfileApi } from "../api/Profile.jsx";
 
-const AuthContext = createContext();
+const AuthContext = createContext(null);
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // 🔥 Load profile only once on app start
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
       setLoading(false);
       return;
     }
-    loadProfile();
+
+    (async () => {
+      try {
+        const data = await getProfileApi();
+        setUser(data.user);
+      } catch {
+        localStorage.removeItem("token");
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, []);
 
-  const loadProfile = async () => {
-    try {
-      const data = await getProfileApi();
-      setUser(data.user);
-    } catch {
-      localStorage.removeItem("token");
-      setUser(null);
-    }
-    setLoading(false);
-  };
-
-  const login = async (email, password) => {
+  // 🚀 FAST LOGIN (no blocking)
+  const login = useCallback(async (email, password) => {
     const data = await loginApi(email, password);
     localStorage.setItem("token", data.token);
-    await loadProfile();
-  };
 
-  // ✅ OTP SAFE REGISTER
-  const register = async (name, email, password) => {
-    // 🔥 IMPORTANT: remove any old auth
+    // optimistic user set (instant redirect)
+    setUser(data.user || { email });
+
+    // background profile refresh
+    getProfileApi()
+      .then((res) => setUser(res.user))
+      .catch(() => {});
+  }, []);
+
+  const register = useCallback(async (name, email, password) => {
     localStorage.removeItem("token");
     setUser(null);
+    return registerApi({ name, email, password });
+  }, []);
 
-    const data = await registerApi({ name, email, password });
-    return data;
-  };
-
-  const logout = () => {
+  const logout = useCallback(() => {
     localStorage.removeItem("token");
     setUser(null);
-  };
+  }, []);
+
+
+  const value = useMemo(
+    () => ({ user, loading, login, register, logout }),
+    [user, loading, login, register, logout]
+  );
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

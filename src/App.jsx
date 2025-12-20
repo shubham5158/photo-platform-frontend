@@ -1,63 +1,69 @@
-// src/App.jsx
 import { Routes, Route, Navigate } from "react-router-dom";
+import { Suspense, lazy } from "react";
 
-import LoginPage from "./pages/admin/login-page.jsx";
-import EventsPage from "./pages/admin/events-page.jsx";
-import PhotosPage from "./pages/admin/photos-page.jsx";
-import DiscountPage from "./pages/admin/discount-page.jsx";
-import OrdersPage from "./pages/admin/orders-page.jsx";
-import AdminHomePage from "./pages/admin/admin-home-page.jsx";
+const LoginPage = lazy(() => import("./pages/admin/login-page.jsx"));
+const RegisterPage = lazy(() => import("./pages/admin/RegisterPage.jsx"));
+const VerifyOtpPage = lazy(() => import("./pages/admin/VerifyOtpPage.jsx"));
 
-import ClientGalleryPage from "./pages/client/client-gallery-page.jsx";
-import ClientCheckoutPage from "./pages/client/client-checkout-page.jsx";
-import ClientDownloadPage from "./pages/client/client-download-page.jsx";
-import ClientLandingPage from "./pages/client/client-landing-page.jsx";
+const AdminLayout = lazy(() => import("./components/admin-layout.jsx"));
+const AdminRoute = lazy(() => import("./components/admin-route.jsx"));
+const AdminHomePage = lazy(() => import("./pages/admin/admin-home-page.jsx"));
+const EventsPage = lazy(() => import("./pages/admin/events-page.jsx"));
+const PhotosPage = lazy(() => import("./pages/admin/photos-page.jsx"));
+const DiscountPage = lazy(() => import("./pages/admin/discount-page.jsx"));
+const OrdersPage = lazy(() => import("./pages/admin/orders-page.jsx"));
+const ClientLinkPage = lazy(() => import("./pages/admin/client-link-page.jsx"));
 
-import AdminLayout from "./components/admin-layout.jsx";
-import AdminRoute from "./components/admin-route.jsx";
-import ClientLinkPage from "./pages/admin/client-link-page.jsx";
-import RegisterPage from "./pages/admin/RegisterPage.jsx";
-import VerifyOtpPage from "./pages/admin/VerifyOtpPage.jsx";
+const ClientLandingPage = lazy(() =>
+  import("./pages/client/client-landing-page.jsx")
+);
+const ClientGalleryPage = lazy(() =>
+  import("./pages/client/client-gallery-page.jsx")
+);
+const ClientCheckoutPage = lazy(() =>
+  import("./pages/client/client-checkout-page.jsx")
+);
+const ClientDownloadPage = lazy(() =>
+  import("./pages/client/client-download-page.jsx")
+);
+
+const Loader = () => (
+  <div className="p-6 text-center text-slate-400">Loading...</div>
+);
 
 const App = () => {
   return (
-    <Routes>
-      {/* Public Client Landing */}
-      <Route path="/" element={<ClientLandingPage />} />
+    <Suspense fallback={<Loader />}>
+      <Routes>
+        <Route path="/" element={<ClientLandingPage />} />
 
-      {/* Admin auth */}
-      <Route path="/admin/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
-       <Route path="/verify-otp" element={<VerifyOtpPage />} />
+        <Route path="/admin/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/verify-otp" element={<VerifyOtpPage />} />
 
-      {/* Admin protected area */}
-      <Route
-        path="/admin"
-        element={
-          <AdminRoute>
-            <AdminLayout />
-          </AdminRoute>
-        }
-      >
-        {/* Dashboard / Portfolio home */}
-        <Route index element={<AdminHomePage />} />
-        <Route path="home" element={<AdminHomePage />} />
+        <Route
+          path="/admin"
+          element={
+            <AdminRoute>
+              <AdminLayout />
+            </AdminRoute>
+          }
+        >
+          <Route index element={<AdminHomePage />} />
+          <Route path="events" element={<EventsPage />} />
+          <Route path="events/:eventId/photos" element={<PhotosPage />} />
+          <Route path="discounts" element={<DiscountPage />} />
+          <Route path="orders" element={<OrdersPage />} />
+          <Route path="client-link/:code" element={<ClientLinkPage />} />
+        </Route>
 
-        <Route path="events" element={<EventsPage />} />
-        <Route path="events/:eventId/photos" element={<PhotosPage />} />
-        <Route path="discounts" element={<DiscountPage />} />
-        <Route path="orders" element={<OrdersPage />} />
-        <Route path="client-link/:code" element={<ClientLinkPage />} />
-      </Route>
+        <Route path="/g/:code" element={<ClientGalleryPage />} />
+        <Route path="/g/:code/checkout" element={<ClientCheckoutPage />} />
+        <Route path="/download/:token" element={<ClientDownloadPage />} />
 
-      {/* Client-facing */}
-      <Route path="/g/:code" element={<ClientGalleryPage />} />
-      <Route path="/g/:code/checkout" element={<ClientCheckoutPage />} />
-      <Route path="/download/:token" element={<ClientDownloadPage />} />
-
-      {/* Default fallback */}
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Suspense>
   );
 };
 

@@ -27,13 +27,13 @@ const ClientGalleryPage = () => {
     load();
   }, [code]);
 
-  const toggleSelect = (id) => {
+  const toggleSelect = useCallback((id) => {
     setSelected((prev) => {
       const next = new Set(prev);
       next.has(id) ? next.delete(id) : next.add(id);
       return next;
     });
-  };
+  }, []);
 
   const handleCheckout = () => {
     if (!selected.size) return toastError("Select at least one photo");
