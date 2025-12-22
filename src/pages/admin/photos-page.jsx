@@ -10,10 +10,6 @@ import {
 import { toastSuccess, toastError } from "../../utils/toast.jsx";
 import toast from "react-hot-toast";
 
-const CLOUD_FRONT_URL = import.meta.env.VITE_CLOUD_FRONT_URL;
-
-console.log("CLOUD_FRONT_URL =", CLOUD_FRONT_URL);
-
 const PhotosPage = () => {
   const { eventId } = useParams();
 
@@ -22,6 +18,10 @@ const PhotosPage = () => {
   const [files, setFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState(null);
+
+  const CLOUD_FRONT_URL = import.meta.env.VITE_CLOUD_FRONT_URL;
+
+  console.log("CLOUD_FRONT_URL =", CLOUD_FRONT_URL);
 
   const load = async () => {
     try {
@@ -79,7 +79,7 @@ const PhotosPage = () => {
     }
   };
 
-    if (!CLOUD_FRONT_URL) {
+  if (!CLOUD_FRONT_URL) {
     return (
       <p className="text-red-600">
         CloudFront URL not configured. Please rebuild frontend.
@@ -130,18 +130,14 @@ const PhotosPage = () => {
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
           {photos.map((p) => {
-
             const imageUrl = `https://${CLOUD_FRONT_URL}/${p.originalKey}`;
 
             return (
-              <div key={p._id} className="border rounded overflow-hidden">
-                <img
-                  src={imageUrl}
-                  alt="photo"
-                  className="w-full h-40 object-cover"
-                  onClick={() => setPreview(imageUrl)}
-                />
-              </div>
+              <img
+                key={p._id}
+                src={imageUrl}
+                className="w-full h-40 object-cover"
+              />
             );
           })}
 
