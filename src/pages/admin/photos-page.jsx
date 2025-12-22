@@ -121,20 +121,14 @@ const PhotosPage = () => {
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
           {photos.map((p) => {
-            const imageKey = p.previewKey || p.originalKey;
-            const imageUrl = `https://${CLOUD_FRONT_URL}/${imageKey}`;
+            const imageUrl = `https://photo-platform-assets.s3.us-east-1.amazonaws.com/${p.originalKey}`;
 
             return (
-              <div
-                key={p._id}
-                className="group relative border rounded overflow-hidden cursor-pointer"
-                onClick={() => setPreview(imageUrl)}
-              >
+              <div key={p._id} className="border rounded overflow-hidden">
                 <img
                   src={imageUrl}
                   alt="photo"
                   className="w-full h-40 object-cover"
-                  loading="lazy"
                 />
               </div>
             );
