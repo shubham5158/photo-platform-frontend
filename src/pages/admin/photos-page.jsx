@@ -19,7 +19,10 @@ const PhotosPage = () => {
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState(null);
 
-  const CLOUD_FRONT_URL = import.meta.env.VITE_CLOUD_FRONT_URL;
+  const CLOUD_FRONT_URL =
+  import.meta.env.VITE_CLOUD_FRONT_URL ||
+  "d3cdgrtnkcp7dy.cloudfront.net";
+
 
   const load = async () => {
     try {
