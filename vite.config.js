@@ -14,13 +14,21 @@ import tailwindcss from '@tailwindcss/vite'
 
 
 export default defineConfig(({ mode }) => {
-  // 👇 FORCE load env from project root
-  const env = loadEnv(mode, process.cwd(), "");
+  // 👇 Force-load env files (.env, .env.production, etc.)
+  const env = loadEnv(mode, process.cwd(), "VITE_");
+
+  // 🔎 HARD DEBUG (prints during build)
+  console.log("🔥 VITE ENV LOADED:", env);
 
   return {
-    plugins: [react(),tailwindcss(),],
+    plugins: [react(),tailwindcss()],
     define: {
-      __VITE_ENV_DEBUG__: JSON.stringify(env),
+      "import.meta.env.VITE_CLOUD_FRONT_URL": JSON.stringify(
+        env.VITE_CLOUD_FRONT_URL
+      ),
+      "import.meta.env.VITE_API_BASE_URL": JSON.stringify(
+        env.VITE_API_BASE_URL
+      ),
     },
   };
 });
