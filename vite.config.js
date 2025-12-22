@@ -23,10 +23,10 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react(),tailwindcss()],
     define: {
-      "import.meta.env.VITE_CLOUD_FRONT_URL": JSON.stringify(
+      __CLOUD_FRONT_URL__: JSON.stringify(
         env.VITE_CLOUD_FRONT_URL
       ),
-      "import.meta.env.VITE_API_BASE_URL": JSON.stringify(
+      __API_BASE_URL__: JSON.stringify(
         env.VITE_API_BASE_URL
       ),
     },

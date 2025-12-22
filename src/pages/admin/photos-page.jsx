@@ -10,9 +10,10 @@ import {
 import { toastSuccess, toastError } from "../../utils/toast.jsx";
 import toast from "react-hot-toast";
 
-const CLOUD_FRONT_URL = import.meta.env.VITE_CLOUD_FRONT_URL;
+const CLOUD_FRONT_URL = __CLOUD_FRONT_URL__;
 
-console.log("CLOUD_FRONT_URL =", CLOUD_FRONT_URL);
+console.log("CLOUD_FRONT_URL =", CLOUD_FRONT_URL); 
+
 const PhotosPage = () => {
   const { eventId } = useParams();
 
@@ -78,6 +79,14 @@ const PhotosPage = () => {
     }
   };
 
+    if (!CLOUD_FRONT_URL) {
+    return (
+      <p className="text-red-600">
+        CloudFront URL not configured. Please rebuild frontend.
+      </p>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* HEADER */}
@@ -121,11 +130,6 @@ const PhotosPage = () => {
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
           {photos.map((p) => {
-            const CLOUD_FRONT_URL = import.meta.env.VITE_CLOUD_FRONT_URL;
-
-            if (!CLOUD_FRONT_URL) {
-              throw new Error("VITE_CLOUD_FRONT_URL is missing at build time");
-            }
 
             const imageUrl = `https://${CLOUD_FRONT_URL}/${p.originalKey}`;
 
