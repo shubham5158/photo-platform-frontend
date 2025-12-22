@@ -79,14 +79,6 @@ const PhotosPage = () => {
     }
   };
 
-  if (!CLOUD_FRONT_URL) {
-    return (
-      <p className="text-red-600">
-        CloudFront URL not configured. Please rebuild frontend.
-      </p>
-    );
-  }
-
   return (
     <div className="space-y-6">
       {/* HEADER */}
