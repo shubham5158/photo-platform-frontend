@@ -122,7 +122,7 @@ const PhotosPage = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
           {photos.map((p) => {
             const imageKey = p.previewKey || p.originalKey;
-            const imageUrl = `https://${CLOUD_FRONT_URL}/${imageKey}`;
+            const imageUrl = `https://photo-platform-assets.s3.us-east-1.amazonaws.com/${imageKey}`;
 
             return (
               <div
@@ -133,13 +133,9 @@ const PhotosPage = () => {
                 <img
                   src={imageUrl}
                   alt="photo"
-                  className="w-full h-40 object-cover transition-transform group-hover:scale-105"
+                  className="w-full h-40 object-cover"
                   loading="lazy"
                 />
-
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-sm">
-                  Tap to view
-                </div>
               </div>
             );
           })}
