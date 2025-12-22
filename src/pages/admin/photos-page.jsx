@@ -10,6 +10,9 @@ import {
 import { toastSuccess, toastError } from "../../utils/toast.jsx";
 import toast from "react-hot-toast";
 
+const CLOUD_FRONT_URL = import.meta.env.VITE_CLOUD_FRONT_URL;
+
+console.log("CLOUD_FRONT_URL =", CLOUD_FRONT_URL);
 const PhotosPage = () => {
   const { eventId } = useParams();
 
@@ -18,9 +21,6 @@ const PhotosPage = () => {
   const [files, setFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState(null);
-
-  const CLOUD_FRONT_URL =
-    import.meta.env.VITE_CLOUD_FRONT_URL || "d3cdgrtnkcp7dy.cloudfront.net";
 
   const load = async () => {
     try {

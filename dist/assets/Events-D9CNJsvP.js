@@ -1,0 +1,1 @@
+import{d as s}from"./index-C2RzipVP.js";const r=async t=>(await s.post("/events",t)).data,c=async(t={})=>(await s.get("/events",{params:t})).data,o=async t=>(await s.get(`/events/${t}`)).data,i=async(t,e)=>(await s.patch(`/events/${t}`,e)).data,d=async t=>(await s.delete(`/events/${t}`)).data;export{o as a,r as c,d,c as g,i as u};
