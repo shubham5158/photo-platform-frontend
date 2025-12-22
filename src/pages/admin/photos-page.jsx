@@ -10,9 +10,9 @@ import {
 import { toastSuccess, toastError } from "../../utils/toast.jsx";
 import toast from "react-hot-toast";
 
-const CLOUD_FRONT_URL = __CLOUD_FRONT_URL__;
+const CLOUD_FRONT_URL = import.meta.env.VITE_CLOUD_FRONT_URL;
 
-console.log("CLOUD_FRONT_URL =", CLOUD_FRONT_URL); 
+console.log("CLOUD_FRONT_URL =", CLOUD_FRONT_URL);
 
 const PhotosPage = () => {
   const { eventId } = useParams();
