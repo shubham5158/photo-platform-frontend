@@ -121,8 +121,13 @@ const PhotosPage = () => {
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
           {photos.map((p) => {
-            const imageUrl = `https://${import.meta.env.VITE_CLOUD_FRONT_URL}/${p.originalKey}`;
-            console.log("CLOUD FRONT ENV =", import.meta.env.VITE_CLOUD_FRONT_URL);
+            const CLOUD_FRONT_URL = import.meta.env.VITE_CLOUD_FRONT_URL;
+
+            if (!CLOUD_FRONT_URL) {
+              throw new Error("VITE_CLOUD_FRONT_URL is missing at build time");
+            }
+
+            const imageUrl = `https://${CLOUD_FRONT_URL}/${p.originalKey}`;
 
             return (
               <div key={p._id} className="border rounded overflow-hidden">
