@@ -20,9 +20,7 @@ const PhotosPage = () => {
   const [preview, setPreview] = useState(null);
 
   const CLOUD_FRONT_URL =
-  import.meta.env.VITE_CLOUD_FRONT_URL ||
-  "d3cdgrtnkcp7dy.cloudfront.net";
-
+    import.meta.env.VITE_CLOUD_FRONT_URL || "d3cdgrtnkcp7dy.cloudfront.net";
 
   const load = async () => {
     try {
@@ -123,16 +121,17 @@ const PhotosPage = () => {
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
           {photos.map((p) => {
-            const previewUrl = `https://${CLOUD_FRONT_URL}/${p.previewKey}`;
+            const imageKey = p.previewKey || p.originalKey;
+            const imageUrl = `https://${CLOUD_FRONT_URL}/${imageKey}`;
 
             return (
               <div
                 key={p._id}
                 className="group relative border rounded overflow-hidden cursor-pointer"
-                onClick={() => setPreview(previewUrl)}
+                onClick={() => setPreview(imageUrl)}
               >
                 <img
-                  src={previewUrl}
+                  src={imageUrl}
                   alt="photo"
                   className="w-full h-40 object-cover transition-transform group-hover:scale-105"
                   loading="lazy"
