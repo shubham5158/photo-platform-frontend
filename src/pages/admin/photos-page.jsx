@@ -121,27 +121,16 @@ const PhotosPage = () => {
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
           {photos.map((p) => {
-            const imageUrl = `https://${CLOUD_FRONT_URL}/${p.originalKey}`;
+            const imageUrl = `https://photo-platform-assets.s3.us-east-1.amazonaws.com/${p.originalKey}`;
 
             return (
-              <img
-                key={p._id}
-                src={imageUrl}
-                alt="photo"
-                className="w-full h-40 object-cover"
-              />
-            );
-          })}
-          {photos.map((p) => {
-            const imageUrl = `https://${CLOUD_FRONT_URL}/${p.originalKey}`;
-
-            return (
-              <img
-                key={p._id}
-                src={imageUrl}
-                alt="photo"
-                className="w-full h-40 object-cover"
-              />
+              <div key={p._id} className="border rounded overflow-hidden">
+                <img
+                  src={imageUrl}
+                  alt="photo"
+                  className="w-full h-40 object-cover"
+                />
+              </div>
             );
           })}
 
