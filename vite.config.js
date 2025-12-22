@@ -18,7 +18,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
 
   return {
-    plugins: [react()],
+    plugins: [react(),tailwindcss(),],
     define: {
       __VITE_ENV_DEBUG__: JSON.stringify(env),
     },
