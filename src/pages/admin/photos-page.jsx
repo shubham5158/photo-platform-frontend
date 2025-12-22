@@ -122,7 +122,7 @@ const PhotosPage = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
           {photos.map((p) => {
             const imageKey = p.previewKey || p.originalKey;
-            const imageUrl = `https://photo-platform-assets.s3.us-east-1.amazonaws.com/${imageKey}`;
+            const imageUrl = `https://${CLOUD_FRONT_URL}/${imageKey}`;
 
             return (
               <div
