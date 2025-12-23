@@ -101,27 +101,26 @@ const PhotosPage = () => {
       <section className="bg-white border rounded-xl p-4">
         <form
           onSubmit={handleUpload}
-          className="flex flex-col md:flex-row gap-4"
+          className="flex flex-col md:flex-row gap-4 items-center"
         >
           <input
             type="file"
             multiple
+            disabled={uploading}
             onChange={(e) => setFiles([...e.target.files])}
           />
 
           <button
             type="submit"
             disabled={uploading}
-            className="px-4 py-2 bg-slate-900 text-white rounded"
+            className={`px-4 py-2 rounded text-white flex items-center gap-2 ${
+              uploading ? "bg-slate-500" : "bg-slate-900"
+            }`}
           >
             {uploading && (
-              <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
-                <div className="bg-white px-6 py-4 rounded-xl flex items-center gap-3">
-                  <span className="h-5 w-5 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
-                  <span className="text-sm font-medium">Uploading photos…</span>
-                </div>
-              </div>
+              <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
             )}
+            {uploading ? "Uploading..." : "Upload"}
           </button>
         </form>
       </section>
