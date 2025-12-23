@@ -2,7 +2,7 @@ import React, { useState, useCallback } from "react";
 import { useAuth } from "../../context/auth-context.jsx";
 import { useNavigate } from "react-router-dom";
 import { toastSuccess, toastError } from "../../utils/toast.jsx";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 
 const RegisterPage = () => {
   const { register } = useAuth();
@@ -15,40 +15,44 @@ const RegisterPage = () => {
   });
 
   const [showPass, setShowPass] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  /* INPUT CHANGE */
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   }, []);
 
-  /* SUBMIT */
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault();
+      if (loading) return;
+
       try {
+        setLoading(true);
         const res = await register(form.name, form.email, form.password);
         toastSuccess(res.message || "OTP Sent Successfully!");
         navigate("/verify-otp", { state: { email: form.email } });
       } catch (err) {
         toastError(err?.response?.data?.message || "Registration failed");
+      } finally {
+        setLoading(false);
       }
     },
-    [form, register, navigate]
+    [form, register, navigate, loading]
   );
 
   return (
     <div className="h-screen flex">
-      {/* LEFT IMAGE SECTION */}
+      {/* LEFT IMAGE */}
       <div
         className="hidden lg:flex w-1/2 justify-around items-center bg-cover bg-center"
         style={{
           backgroundImage:
-            "linear-gradient(rgba(0,0,0,.7),rgba(0,0,0,.7)),url(https://images.unsplash.com/photo-1650825556125-060e52d40bd0?auto=format&fit=crop&w=1170&q=80)",
+            "linear-gradient(rgba(0,0,0,.7),rgba(0,0,0,.7)),url(https://images.unsplash.com/photo-1650825556125-060e52d40bd0)",
         }}
       >
         <div className="w-full px-20 space-y-6">
-          <h1 className="text-white font-bold text-4xl font-sans">
+          <h1 className="text-white font-bold text-4xl">
             Hemant Gogawale Photostudio
           </h1>
           <p className="text-white">
@@ -67,40 +71,32 @@ const RegisterPage = () => {
             <h1 className="text-gray-800 font-bold text-2xl mb-1">
               Create Account
             </h1>
-            <p className="text-sm font-normal text-gray-600 mb-8">
+            <p className="text-sm text-gray-600 mb-8">
               Register & verify via OTP
             </p>
 
-            {/* NAME */}
-            <div className="flex items-center border-2 mb-5 py-2 px-3 rounded-2xl">
-              <input
-                className="pl-2 w-full outline-none border-none"
-                type="text"
-                name="name"
-                placeholder="Full Name"
-                value={form.name}
-                onChange={handleChange}
-                required
-              />
-            </div>
+            <input
+              className="border mb-4 px-3 py-2 rounded-2xl w-full"
+              name="name"
+              placeholder="Full Name"
+              value={form.name}
+              onChange={handleChange}
+              required
+            />
 
-            {/* EMAIL */}
-            <div className="flex items-center border-2 mb-5 py-2 px-3 rounded-2xl">
-              <input
-                className="pl-2 w-full outline-none border-none"
-                type="email"
-                name="email"
-                placeholder="Email Address"
-                value={form.email}
-                onChange={handleChange}
-                required
-              />
-            </div>
+            <input
+              className="border mb-4 px-3 py-2 rounded-2xl w-full"
+              name="email"
+              type="email"
+              placeholder="Email Address"
+              value={form.email}
+              onChange={handleChange}
+              required
+            />
 
-            {/* PASSWORD */}
-            <div className="flex items-center border-2 mb-8 py-2 px-3 rounded-2xl relative">
+            <div className="relative border mb-6 px-3 py-2 rounded-2xl">
               <input
-                className="pl-2 w-full outline-none border-none"
+                className="w-full outline-none"
                 type={showPass ? "text" : "password"}
                 name="password"
                 placeholder="Password"
@@ -111,32 +107,34 @@ const RegisterPage = () => {
               <button
                 type="button"
                 onClick={() => setShowPass((p) => !p)}
-                className="absolute right-3 text-gray-500"
+                className="absolute right-3 top-2.5 text-gray-500"
               >
                 {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
 
-            {/* SUBMIT */}
             <button
               type="submit"
-              className="block w-full bg-indigo-600 py-2 rounded-2xl hover:bg-indigo-700 hover:-translate-y-1 transition-all text-white font-semibold mb-4"
+              disabled={loading}
+              className={`w-full flex justify-center items-center gap-2 py-2 rounded-2xl text-white font-semibold transition-all ${
+                loading
+                  ? "bg-indigo-400 cursor-not-allowed"
+                  : "bg-indigo-600 hover:bg-indigo-700"
+              }`}
             >
-              Register
+              {loading && <Loader2 className="animate-spin" size={18} />}
+              {loading ? "Creating account..." : "Register"}
             </button>
 
-            {/* LOGIN LINK */}
-            <div className="flex justify-center">
-              <span className="text-sm text-gray-600">
-                Already have an account?{" "}
-              </span>
+            <p className="text-sm mt-4 text-center text-gray-600">
+              Already have an account?{" "}
               <span
-                className="text-sm text-indigo-600 cursor-pointer font-semibold hover:underline ml-1"
                 onClick={() => navigate("/admin/login")}
+                className="text-indigo-600 cursor-pointer font-semibold"
               >
                 Login
               </span>
-            </div>
+            </p>
           </form>
         </div>
       </div>
