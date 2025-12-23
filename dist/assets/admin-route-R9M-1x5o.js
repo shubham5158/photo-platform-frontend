@@ -1,1 +1,0 @@
-import{u as n,j as t,N as s}from"./index-DTSe4D_W.js";const o=({children:e})=>{const{user:r,loading:i}=n();return i?t.jsx("div",{children:"Loading..."}):r?e:t.jsx(s,{to:"/admin/login",replace:!0})};export{o as default};

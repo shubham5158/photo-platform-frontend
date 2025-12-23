@@ -1,1 +1,0 @@
-import{d as a}from"./index-DTSe4D_W.js";const o=async(r,e,t)=>(await a.post(`/orders/gallery/${r}`,{photoIds:e,clientEmail:t})).data,d=async()=>(await a.get("/orders/admin")).data,c=async r=>(await a.get(`/download/${r}`)).data;export{c as a,o as c,d as g};

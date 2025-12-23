@@ -15,3 +15,6 @@ sketch
 
 .env
 .env.production
+
+dist/
+build/
