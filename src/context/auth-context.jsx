@@ -39,17 +39,19 @@ export const AuthProvider = ({ children }) => {
 
   // 🚀 FAST LOGIN (no blocking)
   const login = useCallback(async (email, password) => {
-    const data = await loginApi(email, password);
-    localStorage.setItem("token", data.token);
+  const data = await loginApi(email, password);
 
-    // optimistic user set (instant redirect)
-    setUser(data.user || { email });
+  localStorage.setItem("token", data.token);
 
-    // background profile refresh
-    getProfileApi()
-      .then((res) => setUser(res.user))
-      .catch(() => {});
-  }, []);
+  // 🔥 store full user (with role)
+  setUser(data.user);
+
+  // background refresh
+  getProfileApi()
+    .then((res) => setUser(res.user))
+    .catch(() => {});
+}, []);
+
 
   const register = useCallback(async (name, email, password) => {
     localStorage.removeItem("token");

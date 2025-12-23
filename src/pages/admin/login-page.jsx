@@ -20,9 +20,19 @@ const LoginPage = () => {
 
       try {
         setLoading(true);
-        await login(email, password);
+
+        // 🔐 login
+        const loggedInUser = await login(email, password);
+
         toastSuccess("Login successful!");
-        navigate("/admin");
+
+        // ✅ ROLE BASED REDIRECT
+        if (loggedInUser?.role === "ADMIN") {
+          navigate("/admin");
+        } else {
+          // CLIENT → no admin dashboard
+          navigate("/");
+        }
       } catch (err) {
         toastError(err?.response?.data?.message || "Login failed");
       } finally {
@@ -62,9 +72,7 @@ const LoginPage = () => {
             <h1 className="text-gray-800 font-bold text-2xl mb-1">
               Admin Login
             </h1>
-            <p className="text-sm text-gray-600 mb-8">
-              Secure Login
-            </p>
+            <p className="text-sm text-gray-600 mb-8">Secure Login</p>
 
             <input
               className="border mb-4 px-3 py-2 rounded-2xl w-full"
