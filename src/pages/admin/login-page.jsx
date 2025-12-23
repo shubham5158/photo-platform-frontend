@@ -26,11 +26,12 @@ const LoginPage = () => {
 
         toastSuccess("Login successful!");
 
-        // ✅ ROLE BASED REDIRECT
-        if (loggedInUser?.role === "ADMIN") {
+        if (loggedInUser.role === "ADMIN") {
           navigate("/admin");
+        } else if (loggedInUser.role === "CLIENT" && loggedInUser.galleryCode) {
+          navigate(`/g/${loggedInUser.galleryCode}`);
         } else {
-          // CLIENT → no admin dashboard
+          // fallback
           navigate("/");
         }
       } catch (err) {

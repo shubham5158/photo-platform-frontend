@@ -50,6 +50,7 @@ export const AuthProvider = ({ children }) => {
   getProfileApi()
     .then((res) => setUser(res.user))
     .catch(() => {});
+    return data.user;
 }, []);
 
 
