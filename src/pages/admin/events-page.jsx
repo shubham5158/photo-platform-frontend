@@ -23,6 +23,7 @@ const EventsPage = () => {
   const [creating, setCreating] = useState(false);
   const [editEvent, setEditEvent] = useState(null);
   const [deleteEvent, setDeleteEvent] = useState(null);
+  const [genderFilter, setGenderFilter] = useState("all");
 
   /* ---------------- FORM ---------------- */
   const [form, setForm] = useState({
@@ -49,6 +50,7 @@ const EventsPage = () => {
           search: opts.search ?? search,
           page: opts.page ?? page,
           limit,
+          ...(genderFilter !== "all" && { gender: genderFilter }),
         };
 
         const data = await getEventsApi(params);
@@ -168,6 +170,26 @@ const EventsPage = () => {
             onChange={(e) => setSearch(e.target.value)}
             className="border px-3 py-2 rounded-md text-sm w-[220px]"
           />
+
+          <div className="flex gap-2">
+            {["all", "men", "women"].map((g) => (
+              <button
+                key={g}
+                onClick={() => {
+                  setGenderFilter(g);
+                  setPage(1);
+                  loadEvents({ page: 1 });
+                }}
+                className={`px-3 py-1 rounded text-sm border ${
+                  genderFilter === g
+                    ? "bg-slate-900 text-white"
+                    : "bg-white text-slate-700"
+                }`}
+              >
+                {g === "all" ? "All" : g === "men" ? "Men" : "Women"}
+              </button>
+            ))}
+          </div>
 
           <button
             onClick={() => setCreating(true)}
