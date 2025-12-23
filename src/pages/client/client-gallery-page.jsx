@@ -1,7 +1,8 @@
-import React, { useEffect, useState,useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getGalleryByCodeApi } from "../../api/Gallery.jsx";
 import { toastError, toastSuccess } from "../../utils/toast.jsx";
+import ClientImageGridSkeleton from "../../components/ui/ClientImageGridSkeleton.jsx";
 
 const ClientGalleryPage = () => {
   const { code } = useParams();
@@ -45,7 +46,18 @@ const ClientGalleryPage = () => {
   };
 
   if (loading)
-    return <div className="p-6 text-slate-400">Loading gallery...</div>;
+    return (
+      <div className="min-h-screen bg-slate-950 text-slate-50 p-6">
+        <div className="max-w-5xl mx-auto">
+          <Skeleton className="h-6 w-48 mb-2" />
+          <Skeleton className="h-4 w-72 mb-6" />
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+            <ClientImageGridSkeleton count={12} />
+          </div>
+        </div>
+      </div>
+    );
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50">

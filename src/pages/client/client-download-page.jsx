@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { getDownloadByTokenApi } from "../../api/Orders.jsx";
 import { toastError, toastSuccess } from "../../utils/toast.jsx";
+import DownloadListSkeleton from "../../components/ui/DownloadListSkeleton.jsx";
 
 const ClientDownloadPage = () => {
   const { token } = useParams();
@@ -28,8 +29,11 @@ const ClientDownloadPage = () => {
 
   if (loading)
     return (
-      <div className="min-h-screen text-slate-50 bg-slate-950 flex items-center justify-center">
-        Preparing downloads...
+      <div className="min-h-screen bg-slate-950 flex justify-center items-center">
+        <div className="bg-slate-900/80 p-6 rounded-xl w-full max-w-xl">
+          <Skeleton className="h-5 w-40 mb-4" />
+          <DownloadListSkeleton />
+        </div>
       </div>
     );
 

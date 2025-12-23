@@ -4,6 +4,7 @@ import { getPricePreviewApi } from "../../api/Gallery.jsx";
 import { createOrderFromGalleryApi } from "../../api/Orders.jsx";
 import { toastSuccess, toastError } from "../../utils/toast.jsx";
 import toast from "react-hot-toast";
+import CheckoutSkeleton from "../../components/ui/CheckoutSkeleton.jsx";
 
 const ClientCheckoutPage = () => {
   const { code } = useParams();
@@ -56,8 +57,8 @@ const ClientCheckoutPage = () => {
 
   if (loadingPrice)
     return (
-      <div className="min-h-screen flex items-center justify-center text-slate-50">
-        Calculating price...
+      <div className="min-h-screen bg-slate-950 flex justify-center items-center px-4">
+        <CheckoutSkeleton />
       </div>
     );
 
@@ -74,7 +75,9 @@ const ClientCheckoutPage = () => {
           <div className="bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm space-y-1">
             <div>Base price: ₹{pricing.basePrice}</div>
             <div>Gross: ₹{pricing.gross}</div>
-            <div>Discount: {pricing.discountPercent}% (₹{pricing.discountAmount})</div>
+            <div>
+              Discount: {pricing.discountPercent}% (₹{pricing.discountAmount})
+            </div>
             <div className="font-semibold text-amber-300">
               Total: ₹{pricing.net}
             </div>
