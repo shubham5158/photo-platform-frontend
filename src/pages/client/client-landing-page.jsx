@@ -20,7 +20,14 @@ const ClientLandingPage = () => {
     return () => clearTimeout(t);
   }, []);
 
-  if (loading) {
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSlide((prev) => (prev + 1) % portfolioImages.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+   if (loading) {
     return <ClientLandingSkeleton />;
   }
 
