@@ -4,7 +4,8 @@ body {
   @apply bg-slate-100 text-slate-900;
 }
 
-input, button {
+input,
+button {
   font-family: inherit;
 }
 
@@ -46,13 +47,23 @@ button {
 }
 
 @keyframes fadeInUp {
-  0% { opacity: 0; transform: translateY(20px); }
-  100% { opacity: 1; transform: translateY(0); }
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes fadeIn {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 .animate-fadeInUp {
@@ -96,7 +107,8 @@ button {
 
 /* Floating particles */
 @keyframes float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0) translateX(0);
   }
   50% {
@@ -106,7 +118,8 @@ button {
 
 /* Scroll Indicator */
 @keyframes scrollIndicator {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
     opacity: 1;
   }
@@ -133,3 +146,21 @@ button {
   animation: scrollIndicator 2s ease-in-out infinite;
 }
 
+/* ================================
+   GLOBAL SKELETON SHIMMER
+================================ */
+
+.skeleton {
+  background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 37%, #e5e7eb 63%);
+  background-size: 1000px 100%;
+  animation: shimmer 1.6s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}

@@ -1,5 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { Suspense, lazy } from "react";
+import { useAuth } from "./context/auth-context.jsx";
+import GlobalSkeleton from "./components/GlobalSkeleton.jsx";
 
 const LoginPage = lazy(() => import("./pages/admin/login-page.jsx"));
 const RegisterPage = lazy(() => import("./pages/admin/RegisterPage.jsx"));
@@ -27,13 +29,16 @@ const ClientDownloadPage = lazy(() =>
   import("./pages/client/client-download-page.jsx")
 );
 
-const Loader = () => (
-  <div className="p-6 text-center text-slate-400">Loading...</div>
-);
-
 const App = () => {
+  const { loading } = useAuth();
+
+  // 🔥 GLOBAL SKELETON ON REFRESH / AUTH LOAD
+  if (loading) {
+    return <GlobalSkeleton />;
+  }
+
   return (
-    <Suspense fallback={<Loader />}>
+    <Suspense fallback={<GlobalSkeleton />}>
       <Routes>
         <Route path="/" element={<ClientLandingPage />} />
 
