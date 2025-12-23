@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { getGalleryByCodeApi } from "../../api/Gallery.jsx";
 import { toastError, toastSuccess } from "../../utils/toast.jsx";
 import ClientImageGridSkeleton from "../../components/ui/ClientImageGridSkeleton.jsx";
+import Skeleton from "../../components/ui/Skeleton.jsx";
 
 const ClientGalleryPage = () => {
   const { code } = useParams();
