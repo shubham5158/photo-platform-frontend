@@ -20,6 +20,7 @@ const PhotosPage = () => {
   const [preview, setPreview] = useState(null);
 
   const CLOUD_FRONT_URL = import.meta.env.VITE_CLOUD_FRONT_URL;
+  console.log("CLOUD_FRONT_URL =", CLOUD_FRONT_URL);
 
   const load = async () => {
     try {

@@ -24,6 +24,7 @@ jobs:
         run: npm run build
         env:
           VITE_API_BASE_URL: https://lilfj8k4w8.execute-api.us-east-1.amazonaws.com
+          VITE_CLOUD_FRONT_URL: ${{ secrets.VITE_CLOUD_FRONT_URL }}
 
       # ✅ Configure AWS credentials (IMPORTANT)
       - name: Configure AWS credentials
