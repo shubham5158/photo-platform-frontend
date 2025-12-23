@@ -116,19 +116,25 @@ const EventsPage = () => {
 
   /* ---------------- UPDATE ---------------- */
   const handleUpdateEvent = async () => {
+    if (saving) return;
     try {
+      setSaving(true);
       await updateEventApi(editEvent._id, editEvent);
       toastSuccess("Event updated successfully");
       setEditEvent(null);
       loadEvents();
     } catch {
       toastError("Update failed");
+    } finally {
+      setSaving(false);
     }
   };
 
   /* ---------------- DELETE ---------------- */
   const handleDeleteEvent = async () => {
+    if (saving) return;
     try {
+      setSaving(true);
       await deleteEventApi(deleteEvent._id);
       toastSuccess("Event deleted");
       setDeleteEvent(null);
@@ -140,6 +146,8 @@ const EventsPage = () => {
       }
     } catch {
       toastError("Delete failed");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -335,6 +343,13 @@ const EventsPage = () => {
 
             <div className="flex justify-end gap-3 mt-5">
               <button
+                onClick={() => setDeleteEvent(null)}
+                disabled={saving}
+                className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
                 onClick={handleSubmit}
                 disabled={saving}
                 className="bg-slate-900 text-white px-4 py-2 rounded flex items-center gap-2"
@@ -425,15 +440,21 @@ const EventsPage = () => {
             <div className="flex justify-end gap-2 mt-4">
               <button
                 onClick={() => setEditEvent(null)}
-                className="px-4 py-2 border rounded"
+                disabled={saving}
+                className="px-4 py-2 border rounded disabled:opacity-50"
               >
                 Cancel
               </button>
+
               <button
                 onClick={handleUpdateEvent}
-                className="px-4 py-2 bg-slate-900 text-white rounded"
+                disabled={saving}
+                className="px-4 py-2 bg-slate-900 text-white rounded flex items-center gap-2"
               >
-                Save Changes
+                {saving && (
+                  <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                )}
+                {saving ? "Saving..." : "Save Changes"}
               </button>
             </div>
           </div>
@@ -458,15 +479,21 @@ const EventsPage = () => {
             <div className="flex justify-center gap-3">
               <button
                 onClick={() => setDeleteEvent(null)}
-                className="px-4 py-2 bg-gray-300 rounded"
+                disabled={saving}
+                className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
               >
                 Cancel
               </button>
+
               <button
                 onClick={handleDeleteEvent}
-                className="px-4 py-2 bg-red-600 text-white rounded"
+                disabled={saving}
+                className="px-4 py-2 bg-red-600 text-white rounded flex items-center gap-2"
               >
-                Delete
+                {saving && (
+                  <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                )}
+                {saving ? "Deleting..." : "Delete"}
               </button>
             </div>
           </div>
