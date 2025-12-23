@@ -18,8 +18,9 @@ const PhotosPage = () => {
   const [files, setFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState(null);
+
   const CLOUD_FRONT_URL = import.meta.env.VITE_CLOUD_FRONT_URL;
-  
+
   const load = async () => {
     try {
       const e = await getEventApi(eventId);
@@ -119,28 +120,17 @@ const PhotosPage = () => {
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
           {photos.map((p) => {
-            const imageUrl = `${CLOUD_FRONT_URL}/${p.originalKey}`;
-
+            const imageUrl = `https://${CLOUD_FRONT_URL}/${p.originalKey}`;
             return (
-              <div
+              <img
                 key={p._id}
-                className="group border rounded overflow-hidden bg-slate-100 cursor-pointer"
-                onClick={() => setPreview(imageUrl)}
-              >
-                <img
-                  src={imageUrl}
-                  alt="event"
-                  className="w-full h-40 object-cover group-hover:scale-105 transition"
-                  loading="lazy"
-                />
-              </div>
+                src={imageUrl}
+                className="w-full h-40 object-cover"
+              />
             );
           })}
-
           {!photos.length && (
-            <p className="text-sm text-slate-500 col-span-full">
-              No photos uploaded yet.
-            </p>
+            <p className="text-sm text-slate-500">No photos uploaded yet.</p>
           )}
         </div>
       </section>
