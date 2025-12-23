@@ -69,8 +69,9 @@ const EventsPage = () => {
   );
 
   useEffect(() => {
-    loadEvents();
-  }, [loadEvents]);
+    setPage(1);
+    loadEvents({page: 1 });
+  }, [genderFilter,loadEvents]);
 
   useEffect(() => {
     loadEvents({ page });
