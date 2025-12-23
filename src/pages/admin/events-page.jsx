@@ -68,7 +68,7 @@ const EventsPage = () => {
 
   useEffect(() => {
     loadEvents();
-  }, []);
+  }, [loadEvents]);
 
   useEffect(() => {
     loadEvents({ page });
@@ -83,7 +83,7 @@ const EventsPage = () => {
     }, 400);
 
     return () => clearTimeout(searchTimeoutRef.current);
-  }, [search]);
+  }, [search, loadEvents]);
 
   /* ---------------- FORM HANDLERS ---------------- */
   const handleChange = (e) => {
