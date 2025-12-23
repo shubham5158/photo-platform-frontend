@@ -9,6 +9,7 @@ import {
 } from "../../api/Photos.jsx";
 import { toastSuccess, toastError } from "../../utils/toast.jsx";
 import toast from "react-hot-toast";
+import ImageGridSkeleton from "../../components/ui/ImageGridSkeleton.jsx";
 
 const PhotosPage = () => {
   const { eventId } = useParams();
@@ -18,19 +19,22 @@ const PhotosPage = () => {
   const [files, setFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState(null);
+  const [loadingPhotos, setLoadingPhotos] = useState(true);
 
   const CLOUD_FRONT_URL = import.meta.env.VITE_CLOUD_FRONT_URL;
   console.log("CLOUD_FRONT_URL =", CLOUD_FRONT_URL);
 
   const load = async () => {
     try {
+      setLoadingPhotos(true);
       const e = await getEventApi(eventId);
       setEvent(e);
-
       const p = await getEventPhotosApi(eventId);
       setPhotos(p);
     } catch {
-      toastError("Failed to load event photos");
+      toastError("Failed to load photos");
+    } finally {
+      setLoadingPhotos(false);
     }
   };
 
@@ -110,7 +114,14 @@ const PhotosPage = () => {
             disabled={uploading}
             className="px-4 py-2 bg-slate-900 text-white rounded"
           >
-            {uploading ? "Uploading..." : "Upload"}
+            {uploading && (
+              <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
+                <div className="bg-white px-6 py-4 rounded-xl flex items-center gap-3">
+                  <span className="h-5 w-5 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
+                  <span className="text-sm font-medium">Uploading photos…</span>
+                </div>
+              </div>
+            )}
           </button>
         </form>
       </section>
@@ -120,18 +131,20 @@ const PhotosPage = () => {
         <h2 className="text-lg font-medium">Photos ({photos.length})</h2>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
-          {photos.map((p) => {
-            const imageUrl = `https://${CLOUD_FRONT_URL}/${p.originalKey}`;
-            return (
+          {loadingPhotos ? (
+            <ImageGridSkeleton count={8} />
+          ) : photos.length ? (
+            photos.map((p) => (
               <img
                 key={p._id}
-                src={imageUrl}
-                className="w-full h-40 object-cover"
+                src={`https://${CLOUD_FRONT_URL}/${p.originalKey}`}
+                className="w-full h-40 object-cover rounded"
               />
-            );
-          })}
-          {!photos.length && (
-            <p className="text-sm text-slate-500">No photos uploaded yet.</p>
+            ))
+          ) : (
+            <p className="text-sm text-slate-500 col-span-full">
+              No photos uploaded yet.
+            </p>
           )}
         </div>
       </section>

@@ -7,6 +7,7 @@ import {
   deleteEventApi,
 } from "../../api/Events.jsx";
 import { toastSuccess, toastError } from "../../utils/toast.jsx";
+import TableSkeleton from "../../components/ui/TableSkeleton.jsx";
 
 const EventsPage = () => {
   /* ---------------- LIST STATE ---------------- */
@@ -18,6 +19,7 @@ const EventsPage = () => {
   const limit = 10;
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
+  const [saving, setSaving] = useState(false);
 
   /* ---------------- MODALS ---------------- */
   const [creating, setCreating] = useState(false);
@@ -95,31 +97,20 @@ const EventsPage = () => {
 
   /* ---------------- CREATE ---------------- */
   const handleSubmit = async () => {
+    if (saving) return;
     try {
+      setSaving(true);
       await createEventApi({
         ...form,
         basePricePerPhoto: Number(form.basePricePerPhoto),
       });
-
-      toastSuccess("Event created & client login credentials sent via email");
-
-      setForm({
-        name: "",
-        clientName: "",
-        clientEmail: "",
-        gender: "men",
-        category: "",
-        eventDate: "",
-        location: "",
-        basePricePerPhoto: 50,
-        expiresAt: "",
-      });
-
+      toastSuccess("Event created");
       setCreating(false);
-      setPage(1);
       loadEvents({ page: 1 });
     } catch {
       toastError("Event creation failed");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -214,42 +205,52 @@ const EventsPage = () => {
               </tr>
             </thead>
             <tbody>
-              {events.map((e) => (
-                <tr key={e._id} className="border-b">
-                  <td className="px-3 py-2">{e.name}</td>
-                  <td className="px-3 py-2">{e.clientName}</td>
-                  <td className="px-3 py-2">
-                    {e.gender} / {e.category}
-                  </td>
-                  <td className="px-3 py-2">{e.eventDate?.slice(0, 10)}</td>
-                  <td className="px-3 py-2 space-x-3">
-                    <Link
-                      to={`/admin/events/${e._id}/photos`}
-                      className="text-xs underline"
-                    >
-                      Photos
-                    </Link>
-                    <Link
-                      to={`/admin/client-link/${e.galleryCode}`}
-                      className="text-xs text-blue-600 underline"
-                    >
-                      QR Link
-                    </Link>
-                    <button
-                      onClick={() => setEditEvent(e)}
-                      className="text-xs text-green-600 underline"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => setDeleteEvent(e)}
-                      className="text-xs text-red-600 underline"
-                    >
-                      Delete
-                    </button>
+              {loadingList ? (
+                <TableSkeleton rows={10} />
+              ) : events.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="text-center py-6 text-slate-500">
+                    No events found
                   </td>
                 </tr>
-              ))}
+              ) : (
+                events.map((e) => (
+                  <tr key={e._id} className="border-b">
+                    <td className="px-3 py-2">{e.name}</td>
+                    <td className="px-3 py-2">{e.clientName}</td>
+                    <td className="px-3 py-2">
+                      {e.gender} / {e.category}
+                    </td>
+                    <td className="px-3 py-2">{e.eventDate?.slice(0, 10)}</td>
+                    <td className="px-3 py-2 space-x-3">
+                      <Link
+                        to={`/admin/events/${e._id}/photos`}
+                        className="text-xs underline"
+                      >
+                        Photos
+                      </Link>
+                      <Link
+                        to={`/admin/client-link/${e.galleryCode}`}
+                        className="text-xs text-blue-600 underline"
+                      >
+                        QR Link
+                      </Link>
+                      <button
+                        onClick={() => setEditEvent(e)}
+                        className="text-xs text-green-600 underline"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => setDeleteEvent(e)}
+                        className="text-xs text-red-600 underline"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -334,16 +335,14 @@ const EventsPage = () => {
 
             <div className="flex justify-end gap-3 mt-5">
               <button
-                onClick={() => setCreating(false)}
-                className="border px-4 py-2 rounded"
-              >
-                Cancel
-              </button>
-              <button
                 onClick={handleSubmit}
-                className="bg-slate-900 text-white px-4 py-2 rounded"
+                disabled={saving}
+                className="bg-slate-900 text-white px-4 py-2 rounded flex items-center gap-2"
               >
-                Create Event
+                {saving && (
+                  <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                )}
+                {saving ? "Creating..." : "Create Event"}
               </button>
             </div>
           </div>
