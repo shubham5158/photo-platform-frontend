@@ -3,10 +3,12 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toastError } from "../../utils/toast.jsx";
 import { Moon, Sun } from "lucide-react";
+import ClientLandingSkeleton from "../../components/ui/ClientLandingSkeleton.jsx";
 
 const ClientLandingPage = () => {
   const navigate = useNavigate();
   const [code, setCode] = useState("");
+  const [loading, setLoading] = useState(true);
 
   // Dark mode toggle
   const [darkMode, setDarkMode] = useState(
@@ -14,14 +16,13 @@ const ClientLandingPage = () => {
   );
 
   useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("theme", "light");
-    }
-  }, [darkMode]);
+    const t = setTimeout(() => setLoading(false), 800);
+    return () => clearTimeout(t);
+  }, []);
+
+  if (loading) {
+    return <ClientLandingSkeleton />;
+  }
 
   // Auto-sliding portfolio
   const portfolioImages = [
@@ -177,9 +178,9 @@ const ClientLandingPage = () => {
             "https://images.unsplash.com/photo-1519681393784-d120267933ba",
             "https://images.unsplash.com/photo-1521334884684-d80222895322",
             "https://plus.unsplash.com/premium_photo-1661575380608-7911e49bb55c?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjV8fGJvZHlidWlsZGVyfGVufDB8fDB8fHww",
-            "https://images.unsplash.com/photo-1579758682665-53a1a614eea6?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+            "https://images.unsplash.com/photo-1579758682665-53a1a614eea6?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
           ].map((src, idx) => (
-            <div 
+            <div
               key={idx}
               className="group relative overflow-hidden rounded-xl aspect-square cursor-pointer"
               style={{ animationDelay: `${idx * 0.1}s` }}
