@@ -65,13 +65,13 @@ const EventsPage = () => {
         setLoadingList(false);
       }
     },
-    [search, page]
+    [search, page, genderFilter] // ✅ FIX
   );
 
   useEffect(() => {
     setPage(1);
-    loadEvents({page: 1 });
-  }, [genderFilter,loadEvents]);
+    loadEvents({ page: 1 });
+  }, [genderFilter, loadEvents]);
 
   useEffect(() => {
     loadEvents({ page });
@@ -179,7 +179,6 @@ const EventsPage = () => {
                 onClick={() => {
                   setGenderFilter(g);
                   setPage(1);
-                  loadEvents({ page: 1 });
                 }}
                 className={`px-3 py-1 rounded text-sm border ${
                   genderFilter === g
