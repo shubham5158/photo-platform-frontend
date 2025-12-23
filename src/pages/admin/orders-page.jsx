@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getAdminOrdersApi } from "../../api/Orders.jsx";
 import { toastError } from "../../utils/toast.jsx";
+import OrderTableSkeleton from "../../components/ui/OrderTableSkeleton.jsx";
 
 const OrdersPage = () => {
   const [orders, setOrders] = useState([]);
@@ -11,7 +12,7 @@ const OrdersPage = () => {
       setLoading(true);
       const data = await getAdminOrdersApi();
       setOrders(data);
-    } catch (err) {
+    } catch {
       toastError("Failed to load orders");
     } finally {
       setLoading(false);
@@ -34,11 +35,6 @@ const OrdersPage = () => {
       </header>
 
       <section className="bg-white rounded-xl border border-slate-200 p-4">
-        {loading && (
-          <div className="text-sm text-slate-500 mb-2">
-            Loading orders...
-          </div>
-        )}
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
             <thead>
@@ -51,25 +47,39 @@ const OrdersPage = () => {
                 <th className="text-left px-3 py-2">Status</th>
               </tr>
             </thead>
+
             <tbody>
-              {orders.map((o) => (
-                <tr key={o._id} className="border-b border-slate-100">
-                  <td className="px-3 py-2 font-mono text-xs">{o._id}</td>
-                  <td className="px-3 py-2">{o.event?.name}</td>
-                  <td className="px-3 py-2">{o.clientEmail}</td>
-                  <td className="px-3 py-2">{o.quantity}</td>
-                  <td className="px-3 py-2">₹{o.netAmount}</td>
-                  <td className="px-3 py-2">
-                    <span className="inline-flex items-center rounded-full bg-emerald-100 text-emerald-700 px-2 py-0.5 text-xs">
-                      {o.status}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-              {!orders.length && !loading && (
+              {loading ? (
+                <OrderTableSkeleton rows={6} />
+              ) : orders.length ? (
+                orders.map((o) => (
+                  <tr key={o._id} className="border-b border-slate-100">
+                    <td className="px-3 py-2 font-mono text-xs">
+                      {o._id}
+                    </td>
+                    <td className="px-3 py-2">
+                      {o.event?.name}
+                    </td>
+                    <td className="px-3 py-2">
+                      {o.clientEmail}
+                    </td>
+                    <td className="px-3 py-2">
+                      {o.quantity}
+                    </td>
+                    <td className="px-3 py-2">
+                      ₹{o.netAmount}
+                    </td>
+                    <td className="px-3 py-2">
+                      <span className="inline-flex items-center rounded-full bg-emerald-100 text-emerald-700 px-2 py-0.5 text-xs">
+                        {o.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              ) : (
                 <tr>
                   <td
-                    colSpan="6"
+                    colSpan={6}
                     className="text-center text-slate-500 text-sm py-4"
                   >
                     No orders yet.
