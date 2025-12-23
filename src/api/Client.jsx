@@ -1,15 +1,15 @@
 import axios from "axios";
 
-const baseURL =
-  window.location.hostname === "localhost"
-    ? "http://localhost:5000/api"
-    : import.meta.env.VITE_API_BASE_URL;
-    
-console.log("VITE_API_BASE_URL:", import.meta.env.VITE_API_BASE_URL);
-console.log("Axios baseURL:", baseURL);
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+if (!API_BASE_URL) {
+  throw new Error("❌ VITE_API_BASE_URL is missing");
+}
+
+console.log("✅ API BASE URL:", API_BASE_URL);
 
 const client = axios.create({
-  baseURL,
+  baseURL: API_BASE_URL,
 });
 
 client.interceptors.request.use((config) => {
