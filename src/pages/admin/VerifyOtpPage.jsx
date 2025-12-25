@@ -3,26 +3,40 @@ import React, {
   useRef,
   useEffect,
   useCallback,
-  useMemo
+  useMemo,
 } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { verifyOtpApi, resendOtpApi } from "../../api/Auth.jsx";
 import { toastSuccess, toastError } from "../../utils/toast.jsx";
+import { Loader2 } from "lucide-react";
 
 const RESEND_DELAY = 30;
+const OTP_LENGTH = 6;
 
 const VerifyOtpPage = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
   const email = state?.email;
 
-  const [otp, setOtp] = useState("");
+  const [otp, setOtp] = useState(Array(OTP_LENGTH).fill(""));
   const [timer, setTimer] = useState(RESEND_DELAY);
+  const [verifying, setVerifying] = useState(false);
+  const [resending, setResending] = useState(false);
+
   const inputsRef = useRef([]);
+  const otpIndexes = useMemo(
+    () => Array.from({ length: OTP_LENGTH }, (_, i) => i),
+    []
+  );
 
-  const otpIndexes = useMemo(() => [0, 1, 2, 3, 4, 5], []);
+  /* 🚨 If page refreshed without email */
+  useEffect(() => {
+    if (!email) {
+      navigate("/register", { replace: true });
+    }
+  }, [email, navigate]);
 
-  /* ⏱ Timer */
+  /* ⏱ Resend timer */
   useEffect(() => {
     if (timer <= 0) return;
 
@@ -33,51 +47,89 @@ const VerifyOtpPage = () => {
     return () => clearInterval(interval);
   }, [timer]);
 
-  /* VERIFY */
+  /* 🔐 VERIFY OTP */
   const handleVerify = useCallback(async () => {
-    if (otp.length !== 6) {
+    const otpValue = otp.join("");
+
+    if (otpValue.length !== OTP_LENGTH) {
       toastError("Enter 6 digit OTP");
       return;
     }
+
     try {
-      await verifyOtpApi(email, otp);
+      setVerifying(true);
+      await verifyOtpApi(email, otpValue);
       toastSuccess("Email verified successfully!");
       navigate("/admin/login");
     } catch (err) {
       toastError(err?.response?.data?.message || "Invalid or expired OTP");
+    } finally {
+      setVerifying(false);
     }
   }, [otp, email, navigate]);
 
-  /* RESEND */
+  /* 🔁 RESEND OTP */
   const handleResend = useCallback(async () => {
     try {
+      setResending(true);
       await resendOtpApi(email);
       toastSuccess("OTP resent successfully");
-      setOtp("");
+      setOtp(Array(OTP_LENGTH).fill(""));
       setTimer(RESEND_DELAY);
+      inputsRef.current[0]?.focus();
     } catch (err) {
       toastError(err?.response?.data?.message || "Failed to resend OTP");
+    } finally {
+      setResending(false);
     }
   }, [email]);
 
-  /* OTP CHANGE */
+  /* ✍ OTP INPUT CHANGE */
   const handleChange = useCallback((e, index) => {
     const value = e.target.value.replace(/\D/g, "");
+
     if (!value) return;
 
     setOtp((prev) => {
-      const arr = prev.split("");
-      arr[index] = value;
-      return arr.join("").slice(0, 6);
+      const next = [...prev];
+      next[index] = value[0];
+      return next;
     });
 
-    if (index < 5) {
+    if (index < OTP_LENGTH - 1) {
       inputsRef.current[index + 1]?.focus();
     }
   }, []);
 
+  /* ⌫ BACKSPACE HANDLING */
+  const handleKeyDown = useCallback((e, index) => {
+    if (e.key === "Backspace") {
+      e.preventDefault();
+      setOtp((prev) => {
+        const next = [...prev];
+        if (next[index]) {
+          next[index] = "";
+        } else if (index > 0) {
+          next[index - 1] = "";
+          inputsRef.current[index - 1]?.focus();
+        }
+        return next;
+      });
+    }
+  }, []);
+
+  /* 📋 PASTE FULL OTP */
+  const handlePaste = useCallback((e) => {
+    const pasted = e.clipboardData.getData("text").replace(/\D/g, "");
+    if (pasted.length !== OTP_LENGTH) return;
+
+    const nextOtp = pasted.split("").slice(0, OTP_LENGTH);
+    setOtp(nextOtp);
+    inputsRef.current[OTP_LENGTH - 1]?.focus();
+  }, []);
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
         <h1 className="text-3xl font-semibold text-center mb-2">
           Email Verification
@@ -87,35 +139,48 @@ const VerifyOtpPage = () => {
         </p>
 
         {/* OTP INPUTS */}
-        <div className="flex justify-center gap-3 mb-8">
+        <div
+          className="flex justify-center gap-3 mb-8"
+          onPaste={handlePaste}
+        >
           {otpIndexes.map((i) => (
             <input
               key={i}
               ref={(el) => (inputsRef.current[i] = el)}
               maxLength={1}
-              value={otp[i] || ""}
+              value={otp[i]}
               onChange={(e) => handleChange(e, i)}
-              className="w-12 h-12 text-center border rounded-xl text-lg"
+              onKeyDown={(e) => handleKeyDown(e, i)}
+              className="w-12 h-12 text-center border rounded-xl text-lg focus:ring-2 focus:ring-blue-600 outline-none"
             />
           ))}
         </div>
 
+        {/* VERIFY BUTTON */}
         <button
           onClick={handleVerify}
-          className="w-full py-3 rounded-xl bg-blue-700 text-white font-semibold"
+          disabled={verifying}
+          className={`w-full py-3 rounded-xl flex items-center justify-center gap-2 font-semibold text-white transition ${
+            verifying
+              ? "bg-blue-400 cursor-not-allowed"
+              : "bg-blue-700 hover:bg-blue-800"
+          }`}
         >
-          Verify Account
+          {verifying && <Loader2 size={18} className="animate-spin" />}
+          {verifying ? "Verifying..." : "Verify Account"}
         </button>
 
+        {/* RESEND */}
         <div className="text-center mt-4 text-sm text-gray-500">
           {timer > 0 ? (
             <span>Resend OTP in {timer}s</span>
           ) : (
             <button
               onClick={handleResend}
-              className="text-blue-600 font-medium"
+              disabled={resending}
+              className="text-blue-600 font-medium disabled:opacity-50"
             >
-              Resend OTP
+              {resending ? "Resending..." : "Resend OTP"}
             </button>
           )}
         </div>
