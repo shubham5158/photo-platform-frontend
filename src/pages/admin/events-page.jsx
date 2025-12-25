@@ -268,87 +268,152 @@ const EventsPage = () => {
       {creating && (
         <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded-xl w-full max-w-lg">
-            <h2 className="text-xl font-semibold mb-4">Create Event</h2>
+            <h2 className="text-xl font-semibold mb-6">Create Event</h2>
 
-            <div className="grid gap-3">
-              <input
-                name="name"
-                placeholder="Event Name"
-                value={form.name}
-                onChange={handleChange}
-                className="border px-3 py-2 rounded"
-              />
-              <input
-                name="clientName"
-                placeholder="Client Name"
-                value={form.clientName}
-                onChange={handleChange}
-                className="border px-3 py-2 rounded"
-              />
-              <input
-                name="clientEmail"
-                type="email"
-                placeholder="Client Email"
-                value={form.clientEmail}
-                onChange={handleChange}
-                className="border px-3 py-2 rounded"
-              />
+            <div className="grid gap-4">
+              {/* Event Name */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Event Name
+                </label>
+                <input
+                  name="name"
+                  placeholder="e.g. Wedding Ceremony"
+                  value={form.name}
+                  onChange={handleChange}
+                  className="w-full border px-3 py-2 rounded focus:ring-2 focus:ring-slate-900 outline-none"
+                />
+              </div>
 
-              <select
-                name="gender"
-                value={form.gender}
-                onChange={handleChange}
-                className="border px-3 py-2 rounded"
-              >
-                <option value="men">Men</option>
-                <option value="women">Women</option>
-              </select>
+              {/* Client Name */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Client Name
+                </label>
+                <input
+                  name="clientName"
+                  placeholder="Client Full Name"
+                  value={form.clientName}
+                  onChange={handleChange}
+                  className="w-full border px-3 py-2 rounded focus:ring-2 focus:ring-slate-900 outline-none"
+                />
+              </div>
 
-              <input
-                name="category"
-                placeholder="Category (55kg / Bikini)"
-                value={form.category}
-                onChange={handleChange}
-                className="border px-3 py-2 rounded"
-              />
-              <input
-                type="date"
-                name="eventDate"
-                value={form.eventDate}
-                onChange={handleChange}
-                className="border px-3 py-2 rounded"
-              />
-              <input
-                name="location"
-                placeholder="Location"
-                value={form.location}
-                onChange={handleChange}
-                className="border px-3 py-2 rounded"
-              />
-              <input
-                type="number"
-                name="basePricePerPhoto"
-                value={form.basePricePerPhoto}
-                onChange={handleChange}
-                className="border px-3 py-2 rounded"
-              />
-              <input
-                type="date"
-                name="expiresAt"
-                value={form.expiresAt}
-                onChange={handleChange}
-                className="border px-3 py-2 rounded"
-              />
+              {/* Client Email */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Client Email
+                </label>
+                <input
+                  name="clientEmail"
+                  type="email"
+                  placeholder="client@example.com"
+                  value={form.clientEmail}
+                  onChange={handleChange}
+                  className="w-full border px-3 py-2 rounded focus:ring-2 focus:ring-slate-900 outline-none"
+                />
+                <p className="text-xs text-slate-500 mt-1">
+                  Login credentials will be sent to this email
+                </p>
+              </div>
+
+              {/* Gender */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Category Gender
+                </label>
+                <select
+                  name="gender"
+                  value={form.gender}
+                  onChange={handleChange}
+                  className="w-full border px-3 py-2 rounded bg-white focus:ring-2 focus:ring-slate-900 outline-none"
+                >
+                  <option value="men">Men</option>
+                  <option value="women">Women</option>
+                </select>
+              </div>
+
+              {/* Category */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Category
+                </label>
+                <input
+                  name="category"
+                  placeholder="e.g. 55kg / Bikini"
+                  value={form.category}
+                  onChange={handleChange}
+                  className="w-full border px-3 py-2 rounded focus:ring-2 focus:ring-slate-900 outline-none"
+                />
+              </div>
+
+              {/* Event Date */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Event Date
+                </label>
+                <input
+                  type="date"
+                  name="eventDate"
+                  value={form.eventDate}
+                  onChange={handleChange}
+                  className="w-full border px-3 py-2 rounded focus:ring-2 focus:ring-slate-900 outline-none"
+                />
+              </div>
+
+              {/* Location */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Location
+                </label>
+                <input
+                  name="location"
+                  placeholder="Event Location"
+                  value={form.location}
+                  onChange={handleChange}
+                  className="w-full border px-3 py-2 rounded focus:ring-2 focus:ring-slate-900 outline-none"
+                />
+              </div>
+
+              {/* Base Price */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Base Price Per Photo (₹)
+                </label>
+                <input
+                  type="number"
+                  name="basePricePerPhoto"
+                  value={form.basePricePerPhoto}
+                  onChange={handleChange}
+                  className="w-full border px-3 py-2 rounded focus:ring-2 focus:ring-slate-900 outline-none"
+                />
+              </div>
+
+              {/* Expiry Date */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Gallery Expiry Date
+                </label>
+                <input
+                  type="date"
+                  name="expiresAt"
+                  value={form.expiresAt}
+                  onChange={handleChange}
+                  className="w-full border px-3 py-2 rounded focus:ring-2 focus:ring-slate-900 outline-none"
+                />
+              </div>
             </div>
 
-            <div className="flex justify-end gap-3 mt-5">
+            {/* ACTIONS */}
+            <div className="flex justify-end gap-3 mt-6">
               <button
-                onClick={() => setCreating(null)}
+                onClick={() => setCreating(false)}
                 disabled={saving}
                 className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
               >
                 Cancel
               </button>
+
               <button
                 onClick={handleSubmit}
                 disabled={saving}
