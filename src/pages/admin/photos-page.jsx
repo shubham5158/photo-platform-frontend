@@ -9,9 +9,8 @@ import {
   deletePhotoApi,
 } from "../../api/Photos.jsx";
 import { toastSuccess, toastError } from "../../utils/toast.jsx";
-import toast from "react-hot-toast";
 import ImageGridSkeleton from "../../components/ui/ImageGridSkeleton.jsx";
-import { Trash2, Eye } from "lucide-react";
+import { Trash2, Eye, Loader2 } from "lucide-react";
 
 const PhotosPage = () => {
   const { eventId } = useParams();
@@ -20,17 +19,19 @@ const PhotosPage = () => {
   const [photos, setPhotos] = useState([]);
   const [files, setFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
   const [preview, setPreview] = useState(null);
   const [loadingPhotos, setLoadingPhotos] = useState(true);
 
   const CLOUD_FRONT_URL = import.meta.env.VITE_CLOUD_FRONT_URL;
 
+  /* ---------------- LOAD ---------------- */
   const load = async () => {
     try {
       setLoadingPhotos(true);
       const e = await getEventApi(eventId);
-      setEvent(e);
       const p = await getEventPhotosApi(eventId);
+      setEvent(e);
       setPhotos(p);
     } catch {
       toastError("Failed to load photos");
@@ -43,11 +44,11 @@ const PhotosPage = () => {
     load();
   }, [eventId]);
 
+  /* ---------------- UPLOAD ---------------- */
   const handleUpload = async (e) => {
     e.preventDefault();
-    if (!files.length) return toastError("Select at least 1 file");
+    if (!files.length) return toastError("Select at least 1 photo");
 
-    const t = toast.loading("Uploading photos…");
     setUploading(true);
 
     try {
@@ -62,27 +63,29 @@ const PhotosPage = () => {
         await confirmUploadApi({ eventId, key });
       }
 
-      toast.dismiss(t);
-      toastSuccess("Photos uploaded");
+      toastSuccess("Photos uploaded successfully");
       setFiles([]);
       load();
     } catch {
-      toast.dismiss(t);
       toastError("Upload failed");
     } finally {
       setUploading(false);
     }
   };
 
+  /* ---------------- DELETE ---------------- */
   const handleDelete = async (photoId) => {
-    if (!confirm("Delete this photo?")) return;
+    if (!window.confirm("Delete this photo?")) return;
 
     try {
+      setDeletingId(photoId);
       await deletePhotoApi(photoId);
-      toastSuccess("Photo deleted");
       setPhotos((p) => p.filter((x) => x._id !== photoId));
+      toastSuccess("Photo deleted");
     } catch {
       toastError("Delete failed");
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -91,8 +94,8 @@ const PhotosPage = () => {
       {/* TOP RIGHT UPLOAD STATUS */}
       {uploading && (
         <div className="fixed top-4 right-4 z-50 bg-white shadow-lg rounded-lg px-4 py-2 flex items-center gap-2">
-          <span className="h-4 w-4 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
-          <span className="text-sm font-medium">Uploading…</span>
+          <Loader2 className="animate-spin" size={16} />
+          <span className="text-sm font-medium">Uploading photos…</span>
         </div>
       )}
 
@@ -122,8 +125,8 @@ const PhotosPage = () => {
             />
             <p className="text-sm font-medium">
               {files.length
-                ? `${files.length} file(s) selected`
-                : "Click to select photos"}
+                ? `${files.length} photo(s) selected`
+                : "Click or drag photos here"}
             </p>
             <p className="text-xs text-slate-500">JPG / PNG supported</p>
           </label>
@@ -141,7 +144,9 @@ const PhotosPage = () => {
 
       {/* PHOTO GRID */}
       <section className="bg-white border rounded-xl p-4">
-        <h2 className="text-lg font-medium mb-4">Photos ({photos.length})</h2>
+        <h2 className="text-lg font-medium mb-4">
+          Photos ({photos.length})
+        </h2>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {loadingPhotos ? (
@@ -149,19 +154,21 @@ const PhotosPage = () => {
           ) : photos.length ? (
             photos.map((p) => {
               const url = `https://${CLOUD_FRONT_URL}/${p.originalKey}`;
+
               return (
                 <div
                   key={p._id}
-                  className="group relative rounded overflow-hidden border"
+                  className="group relative rounded overflow-hidden border cursor-pointer"
+                  onClick={() => setPreview(url)}
                 >
                   <img
                     src={url}
-                    className="w-full h-40 object-cover cursor-pointer"
-                    onClick={() => setPreview(url)}
+                    className="w-full h-40 object-cover"
+                    alt=""
                   />
 
                   {/* TAP TO VIEW */}
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition pointer-events-none">
                     <div className="flex items-center gap-2 text-white text-xs">
                       <Eye size={14} /> Tap to view
                     </div>
@@ -169,10 +176,18 @@ const PhotosPage = () => {
 
                   {/* DELETE */}
                   <button
-                    onClick={() => handleDelete(p._id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(p._id);
+                    }}
+                    disabled={deletingId === p._id}
                     className="absolute top-2 right-2 bg-red-600 text-white p-1 rounded opacity-0 group-hover:opacity-100"
                   >
-                    <Trash2 size={14} />
+                    {deletingId === p._id ? (
+                      <Loader2 size={14} className="animate-spin" />
+                    ) : (
+                      <Trash2 size={14} />
+                    )}
                   </button>
                 </div>
               );
