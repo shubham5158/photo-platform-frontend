@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { getEventApi } from "../../api/Events.jsx";
 import {
@@ -10,7 +10,7 @@ import {
 } from "../../api/Photos.jsx";
 import { toastSuccess, toastError } from "../../utils/toast.jsx";
 import ImageGridSkeleton from "../../components/ui/ImageGridSkeleton.jsx";
-import { Trash2, Eye, Loader2 } from "lucide-react";
+import { Trash2, Eye, Loader2, UploadCloud } from "lucide-react";
 
 const PhotosPage = () => {
   const { eventId } = useParams();
@@ -26,7 +26,7 @@ const PhotosPage = () => {
   const CLOUD_FRONT_URL = import.meta.env.VITE_CLOUD_FRONT_URL;
 
   /* ---------------- LOAD ---------------- */
-  const load = async () => {
+  const load = useCallback(async () => {
     try {
       setLoadingPhotos(true);
       const e = await getEventApi(eventId);
@@ -38,11 +38,11 @@ const PhotosPage = () => {
     } finally {
       setLoadingPhotos(false);
     }
-  };
+  }, [eventId]);
 
   useEffect(() => {
     load();
-  }, [eventId]);
+  }, [load]);
 
   /* ---------------- UPLOAD ---------------- */
   const handleUpload = async (e) => {
@@ -89,13 +89,17 @@ const PhotosPage = () => {
     }
   };
 
+  /* ---------------- UI ---------------- */
   return (
     <div className="space-y-6 relative">
-      {/* TOP RIGHT UPLOAD STATUS */}
-      {uploading && (
+
+      {/* 🔥 TOP-RIGHT GLOBAL LOADER */}
+      {(uploading || deletingId) && (
         <div className="fixed top-4 right-4 z-50 bg-white shadow-lg rounded-lg px-4 py-2 flex items-center gap-2">
           <Loader2 className="animate-spin" size={16} />
-          <span className="text-sm font-medium">Uploading photos…</span>
+          <span className="text-sm font-medium">
+            {uploading ? "Uploading photos…" : "Deleting photo…"}
+          </span>
         </div>
       )}
 
@@ -112,10 +116,10 @@ const PhotosPage = () => {
         )}
       </header>
 
-      {/* UPLOAD */}
+      {/* UPLOAD – DRAG & DROP */}
       <section className="bg-white border rounded-xl p-4">
         <form onSubmit={handleUpload} className="space-y-4">
-          <label className="border-2 border-dashed rounded-xl p-6 flex flex-col items-center cursor-pointer hover:bg-slate-50">
+          <label className="border-2 border-dashed rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50 transition">
             <input
               type="file"
               multiple
@@ -123,6 +127,9 @@ const PhotosPage = () => {
               disabled={uploading}
               onChange={(e) => setFiles([...e.target.files])}
             />
+
+            <UploadCloud className="text-slate-500 mb-2" size={32} />
+
             <p className="text-sm font-medium">
               {files.length
                 ? `${files.length} photo(s) selected`
@@ -200,7 +207,7 @@ const PhotosPage = () => {
         </div>
       </section>
 
-      {/* PREVIEW */}
+      {/* FULLSCREEN PREVIEW */}
       {preview && (
         <div
           className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center"
