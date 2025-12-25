@@ -1,16 +1,17 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
-import { getEventApi } from "../../api/Events.jsx";
+import {
+  getEventApi
+} from "../../api/Events.jsx";
 import {
   getUploadUrlApi,
   uploadToS3,
   getEventPhotosApi,
   confirmUploadApi,
-  deletePhotoApi,
+  deletePhotoApi, // 👈 make sure this exists
 } from "../../api/Photos.jsx";
 import { toastSuccess, toastError } from "../../utils/toast.jsx";
 import ImageGridSkeleton from "../../components/ui/ImageGridSkeleton.jsx";
-import { Trash2, Eye, Loader2, UploadCloud } from "lucide-react";
 
 const PhotosPage = () => {
   const { eventId } = useParams();
@@ -26,7 +27,27 @@ const PhotosPage = () => {
 
   const CLOUD_FRONT_URL = import.meta.env.VITE_CLOUD_FRONT_URL;
 
-  /* ---------------- LOAD ---------------- */
+  /* =====================================================
+     🔥 CRITICAL: WINDOWS → CHROME DRAG FIX
+  ===================================================== */
+  useEffect(() => {
+    const prevent = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    };
+
+    window.addEventListener("dragover", prevent);
+    window.addEventListener("drop", prevent);
+
+    return () => {
+      window.removeEventListener("dragover", prevent);
+      window.removeEventListener("drop", prevent);
+    };
+  }, []);
+
+  /* =====================================================
+     LOAD EVENT + PHOTOS
+  ===================================================== */
   const load = useCallback(async () => {
     try {
       setLoadingPhotos(true);
@@ -45,31 +66,42 @@ const PhotosPage = () => {
     load();
   }, [load]);
 
-  /* ---------------- DRAG & DROP ---------------- */
+  /* =====================================================
+     DRAG & DROP HANDLERS
+  ===================================================== */
   const handleDragOver = (e) => {
-    e.preventDefault(); // 🔥 REQUIRED
+    e.preventDefault();
+    e.stopPropagation();
+    e.dataTransfer.dropEffect = "copy";
     setDragActive(true);
   };
 
-  const handleDragLeave = () => {
-    setDragActive(false);
-  };
-
   const handleDrop = (e) => {
-    e.preventDefault(); // 🔥 REQUIRED
+    e.preventDefault();
+    e.stopPropagation();
     setDragActive(false);
 
-    const droppedFiles = Array.from(e.dataTransfer.files);
-    if (!droppedFiles.length) return;
+    const dropped = Array.from(e.dataTransfer.files).filter((f) =>
+      f.type.startsWith("image/")
+    );
 
-    setFiles(droppedFiles);
+    if (!dropped.length) {
+      toastError("Only image files allowed");
+      return;
+    }
+
+    setFiles(dropped);
   };
 
-  /* ---------------- UPLOAD ---------------- */
-  const handleUpload = async () => {
-    if (!files.length) return toastError("Select at least 1 photo");
+  /* =====================================================
+     UPLOAD
+  ===================================================== */
+  const handleUpload = async (e) => {
+    e.preventDefault();
+    if (!files.length) return toastError("Select at least one image");
 
     setUploading(true);
+
     try {
       for (const file of files) {
         const { uploadUrl, key } = await getUploadUrlApi({
@@ -84,23 +116,24 @@ const PhotosPage = () => {
 
       toastSuccess("Photos uploaded successfully");
       setFiles([]);
-      load();
-    } catch {
+      await load();
+    } catch (err) {
+      console.error(err);
       toastError("Upload failed");
     } finally {
       setUploading(false);
     }
   };
 
-  /* ---------------- DELETE ---------------- */
+  /* =====================================================
+     DELETE PHOTO
+  ===================================================== */
   const handleDelete = async (photoId) => {
-    if (!window.confirm("Delete this photo?")) return;
-
     try {
       setDeletingId(photoId);
       await deletePhotoApi(photoId);
-      setPhotos((p) => p.filter((x) => x._id !== photoId));
       toastSuccess("Photo deleted");
+      await load();
     } catch {
       toastError("Delete failed");
     } finally {
@@ -108,15 +141,17 @@ const PhotosPage = () => {
     }
   };
 
+  /* =====================================================
+     UI
+  ===================================================== */
   return (
     <div className="space-y-6 relative">
-
-      {/* 🔥 TOP RIGHT GLOBAL LOADER */}
+      {/* TOP RIGHT LOADER */}
       {(uploading || deletingId) && (
-        <div className="fixed top-4 right-4 z-50 bg-white shadow-lg rounded-lg px-4 py-2 flex items-center gap-2">
-          <Loader2 className="animate-spin" size={16} />
-          <span className="text-sm font-medium">
-            {uploading ? "Uploading photos…" : "Deleting photo…"}
+        <div className="fixed top-4 right-4 z-50 bg-black/80 text-white px-4 py-2 rounded-lg flex items-center gap-2">
+          <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+          <span className="text-sm">
+            {uploading ? "Uploading..." : "Deleting..."}
           </span>
         </div>
       )}
@@ -127,60 +162,59 @@ const PhotosPage = () => {
         {event && (
           <p className="text-sm text-slate-600">
             {event.name} • Gallery{" "}
-            <span className="font-mono bg-slate-100 px-2 rounded">
+            <span className="font-mono bg-slate-100 px-2 py-0.5 rounded">
               {event.galleryCode}
             </span>
           </p>
         )}
       </header>
 
-      {/* DRAG & DROP ZONE */}
+      {/* UPLOAD ZONE */}
       <section
         onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
+        onDragLeave={() => setDragActive(false)}
         onDrop={handleDrop}
-        className={`bg-white border-2 border-dashed rounded-xl p-8 transition ${
+        className={`border-2 border-dashed rounded-xl p-8 transition cursor-pointer ${
           dragActive
             ? "border-slate-900 bg-slate-50"
-            : "border-slate-300"
+            : "border-slate-300 bg-white"
         }`}
       >
-        <div className="flex flex-col items-center gap-3 text-center">
-          <UploadCloud size={40} className="text-slate-500" />
-
-          <p className="text-sm font-medium">
-            Drag photos from your computer here
-          </p>
-
-          <p className="text-xs text-slate-500">
-            or click to browse (JPG / PNG)
-          </p>
-
+        <form onSubmit={handleUpload} className="flex flex-col items-center gap-3">
           <input
             type="file"
             multiple
-            hidden
-            id="photo-input"
-            onChange={(e) => setFiles([...e.target.files])}
+            accept="image/*"
+            disabled={uploading}
+            onChange={(e) =>
+              setFiles(Array.from(e.target.files || []))
+            }
+            className="hidden"
+            id="fileInput"
           />
 
           <label
-            htmlFor="photo-input"
-            className="px-4 py-2 bg-slate-900 text-white rounded cursor-pointer text-sm"
+            htmlFor="fileInput"
+            className="text-center cursor-pointer"
           >
-            Browse Files
+            <p className="font-medium">
+              Drag & drop images here
+            </p>
+            <p className="text-sm text-slate-500">
+              or click to browse
+            </p>
           </label>
 
           {files.length > 0 && (
             <button
-              onClick={handleUpload}
+              type="submit"
               disabled={uploading}
-              className="mt-3 px-4 py-2 bg-emerald-600 text-white rounded"
+              className="mt-2 px-5 py-2 bg-slate-900 text-white rounded"
             >
-              Upload {files.length} Photo(s)
+              Upload {files.length} photo{files.length > 1 && "s"}
             </button>
           )}
-        </div>
+        </form>
       </section>
 
       {/* PHOTO GRID */}
@@ -189,47 +223,46 @@ const PhotosPage = () => {
           Photos ({photos.length})
         </h2>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {loadingPhotos ? (
             <ImageGridSkeleton count={8} />
           ) : photos.length ? (
-            photos.map((p) => {
-              const url = `https://${CLOUD_FRONT_URL}/${p.originalKey}`;
+            photos.map((p) => (
+              <div key={p._id} className="relative group">
+                <img
+                  src={`https://${CLOUD_FRONT_URL}/${p.originalKey}`}
+                  className="w-full h-40 object-cover rounded cursor-pointer"
+                  onClick={() =>
+                    setPreview(
+                      `https://${CLOUD_FRONT_URL}/${p.originalKey}`
+                    )
+                  }
+                />
 
-              return (
-                <div
-                  key={p._id}
-                  className="group relative rounded overflow-hidden border cursor-pointer"
-                  onClick={() => setPreview(url)}
-                >
-                  <img src={url} className="w-full h-40 object-cover" />
-
-                  {/* TAP TO VIEW */}
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
-                    <div className="flex items-center gap-2 text-white text-xs">
-                      <Eye size={14} /> Tap to view
-                    </div>
-                  </div>
-
-                  {/* DELETE */}
+                {/* OVERLAY */}
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-3">
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDelete(p._id);
-                    }}
-                    className="absolute top-2 right-2 bg-red-600 text-white p-1 rounded opacity-0 group-hover:opacity-100"
+                    onClick={() =>
+                      setPreview(
+                        `https://${CLOUD_FRONT_URL}/${p.originalKey}`
+                      )
+                    }
+                    className="px-3 py-1 text-xs bg-white rounded"
                   >
-                    {deletingId === p._id ? (
-                      <Loader2 size={14} className="animate-spin" />
-                    ) : (
-                      <Trash2 size={14} />
-                    )}
+                    View
+                  </button>
+
+                  <button
+                    onClick={() => handleDelete(p._id)}
+                    className="px-3 py-1 text-xs bg-red-600 text-white rounded"
+                  >
+                    Delete
                   </button>
                 </div>
-              );
-            })
+              </div>
+            ))
           ) : (
-            <p className="text-sm text-slate-500 col-span-full">
+            <p className="text-sm text-slate-500">
               No photos uploaded yet.
             </p>
           )}
