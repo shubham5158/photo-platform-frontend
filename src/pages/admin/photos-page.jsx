@@ -45,6 +45,22 @@ const PhotosPage = () => {
     load();
   }, [load]);
 
+  useEffect(() => {
+  const prevent = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  window.addEventListener("dragover", prevent);
+  window.addEventListener("drop", prevent);
+
+  return () => {
+    window.removeEventListener("dragover", prevent);
+    window.removeEventListener("drop", prevent);
+  };
+}, []);
+
+
   /* ---------------- DRAG & DROP ---------------- */
   const handleDragOver = (e) => {
     e.preventDefault();
