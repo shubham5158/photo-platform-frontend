@@ -98,32 +98,60 @@ const PhotosPage = () => {
       </header>
 
       {/* UPLOAD */}
-      <section className="bg-white border rounded-xl p-4">
-        <form
-          onSubmit={handleUpload}
-          className="flex flex-col md:flex-row gap-4 items-center"
-        >
-          <input
-            type="file"
-            multiple
-            disabled={uploading}
-            onChange={(e) => setFiles([...e.target.files])}
-          />
+      {/* UPLOAD */}
+<section className="bg-white border rounded-xl p-4">
+  <form
+    onSubmit={handleUpload}
+    className="flex flex-col gap-4"
+  >
+    {/* DROPZONE */}
+    <label
+      className={`flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-6 cursor-pointer transition ${
+        uploading
+          ? "border-slate-300 bg-slate-50 cursor-not-allowed"
+          : "border-slate-400 hover:border-slate-900 hover:bg-slate-50"
+      }`}
+    >
+      <input
+        type="file"
+        multiple
+        disabled={uploading}
+        className="hidden"
+        onChange={(e) => setFiles([...e.target.files])}
+      />
 
-          <button
-            type="submit"
-            disabled={uploading}
-            className={`px-4 py-2 rounded text-white flex items-center gap-2 ${
-              uploading ? "bg-slate-500" : "bg-slate-900"
-            }`}
-          >
-            {uploading && (
-              <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-            )}
-            {uploading ? "Uploading..." : "Upload"}
-          </button>
-        </form>
-      </section>
+      <div className="text-center space-y-2">
+        <div className="text-sm font-medium text-slate-700">
+          {files.length
+            ? `${files.length} file(s) selected`
+            : "Click to select photos"}
+        </div>
+        <p className="text-xs text-slate-500">
+          JPG, PNG • Multiple files supported
+        </p>
+      </div>
+    </label>
+
+    {/* UPLOAD BUTTON */}
+    <div className="flex justify-end">
+      <button
+        type="submit"
+        disabled={uploading || !files.length}
+        className={`px-4 py-2 rounded text-white flex items-center gap-2 ${
+          uploading || !files.length
+            ? "bg-slate-400 cursor-not-allowed"
+            : "bg-slate-900 hover:bg-slate-800"
+        }`}
+      >
+        {uploading && (
+          <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+        )}
+        {uploading ? "Uploading..." : "Upload Photos"}
+      </button>
+    </div>
+  </form>
+</section>
+
 
       {/* PHOTO GRID */}
       <section className="bg-white border rounded-xl p-4">
