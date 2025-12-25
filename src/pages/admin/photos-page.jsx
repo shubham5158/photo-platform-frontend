@@ -6,10 +6,12 @@ import {
   uploadToS3,
   getEventPhotosApi,
   confirmUploadApi,
+  deletePhotoApi,
 } from "../../api/Photos.jsx";
 import { toastSuccess, toastError } from "../../utils/toast.jsx";
 import toast from "react-hot-toast";
 import ImageGridSkeleton from "../../components/ui/ImageGridSkeleton.jsx";
+import { Trash2, Eye } from "lucide-react";
 
 const PhotosPage = () => {
   const { eventId } = useParams();
@@ -22,7 +24,6 @@ const PhotosPage = () => {
   const [loadingPhotos, setLoadingPhotos] = useState(true);
 
   const CLOUD_FRONT_URL = import.meta.env.VITE_CLOUD_FRONT_URL;
-  console.log("CLOUD_FRONT_URL =", CLOUD_FRONT_URL);
 
   const load = async () => {
     try {
@@ -44,53 +45,64 @@ const PhotosPage = () => {
 
   const handleUpload = async (e) => {
     e.preventDefault();
+    if (!files.length) return toastError("Select at least 1 file");
 
-    if (!files.length) {
-      toastError("Select at least 1 file");
-      return;
-    }
-
-    const t = toast.loading("Uploading...");
+    const t = toast.loading("Uploading photos…");
     setUploading(true);
 
     try {
       for (const file of files) {
-        // 1️⃣ get upload URL
         const { uploadUrl, key } = await getUploadUrlApi({
           eventId,
           filename: file.name,
           contentType: file.type,
         });
 
-        // 2️⃣ upload to S3
         await uploadToS3(uploadUrl, file);
-
-        // 3️⃣ confirm upload (DB entry)
         await confirmUploadApi({ eventId, key });
       }
 
       toast.dismiss(t);
-      toastSuccess("Photos uploaded successfully!");
-      await load();
-    } catch (err) {
-      console.error(err);
+      toastSuccess("Photos uploaded");
+      setFiles([]);
+      load();
+    } catch {
       toast.dismiss(t);
       toastError("Upload failed");
     } finally {
       setUploading(false);
-      setFiles([]);
+    }
+  };
+
+  const handleDelete = async (photoId) => {
+    if (!confirm("Delete this photo?")) return;
+
+    try {
+      await deletePhotoApi(photoId);
+      toastSuccess("Photo deleted");
+      setPhotos((p) => p.filter((x) => x._id !== photoId));
+    } catch {
+      toastError("Delete failed");
     }
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
+      {/* TOP RIGHT UPLOAD STATUS */}
+      {uploading && (
+        <div className="fixed top-4 right-4 z-50 bg-white shadow-lg rounded-lg px-4 py-2 flex items-center gap-2">
+          <span className="h-4 w-4 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
+          <span className="text-sm font-medium">Uploading…</span>
+        </div>
+      )}
+
       {/* HEADER */}
       <header>
         <h1 className="text-2xl font-semibold">Manage Photos</h1>
         {event && (
           <p className="text-sm text-slate-600">
-            {event.name} • Gallery:{" "}
-            <span className="font-mono bg-slate-100 px-2 py-0.5 rounded">
+            {event.name} • Gallery{" "}
+            <span className="font-mono bg-slate-100 px-2 rounded">
               {event.galleryCode}
             </span>
           </p>
@@ -98,76 +110,73 @@ const PhotosPage = () => {
       </header>
 
       {/* UPLOAD */}
-      {/* UPLOAD */}
-<section className="bg-white border rounded-xl p-4">
-  <form
-    onSubmit={handleUpload}
-    className="flex flex-col gap-4"
-  >
-    {/* DROPZONE */}
-    <label
-      className={`flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-6 cursor-pointer transition ${
-        uploading
-          ? "border-slate-300 bg-slate-50 cursor-not-allowed"
-          : "border-slate-400 hover:border-slate-900 hover:bg-slate-50"
-      }`}
-    >
-      <input
-        type="file"
-        multiple
-        disabled={uploading}
-        className="hidden"
-        onChange={(e) => setFiles([...e.target.files])}
-      />
+      <section className="bg-white border rounded-xl p-4">
+        <form onSubmit={handleUpload} className="space-y-4">
+          <label className="border-2 border-dashed rounded-xl p-6 flex flex-col items-center cursor-pointer hover:bg-slate-50">
+            <input
+              type="file"
+              multiple
+              className="hidden"
+              disabled={uploading}
+              onChange={(e) => setFiles([...e.target.files])}
+            />
+            <p className="text-sm font-medium">
+              {files.length
+                ? `${files.length} file(s) selected`
+                : "Click to select photos"}
+            </p>
+            <p className="text-xs text-slate-500">JPG / PNG supported</p>
+          </label>
 
-      <div className="text-center space-y-2">
-        <div className="text-sm font-medium text-slate-700">
-          {files.length
-            ? `${files.length} file(s) selected`
-            : "Click to select photos"}
-        </div>
-        <p className="text-xs text-slate-500">
-          JPG, PNG • Multiple files supported
-        </p>
-      </div>
-    </label>
-
-    {/* UPLOAD BUTTON */}
-    <div className="flex justify-end">
-      <button
-        type="submit"
-        disabled={uploading || !files.length}
-        className={`px-4 py-2 rounded text-white flex items-center gap-2 ${
-          uploading || !files.length
-            ? "bg-slate-400 cursor-not-allowed"
-            : "bg-slate-900 hover:bg-slate-800"
-        }`}
-      >
-        {uploading && (
-          <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-        )}
-        {uploading ? "Uploading..." : "Upload Photos"}
-      </button>
-    </div>
-  </form>
-</section>
-
+          <div className="flex justify-end">
+            <button
+              disabled={!files.length || uploading}
+              className="bg-slate-900 text-white px-4 py-2 rounded disabled:opacity-50"
+            >
+              Upload Photos
+            </button>
+          </div>
+        </form>
+      </section>
 
       {/* PHOTO GRID */}
       <section className="bg-white border rounded-xl p-4">
-        <h2 className="text-lg font-medium">Photos ({photos.length})</h2>
+        <h2 className="text-lg font-medium mb-4">Photos ({photos.length})</h2>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {loadingPhotos ? (
             <ImageGridSkeleton count={8} />
           ) : photos.length ? (
-            photos.map((p) => (
-              <img
-                key={p._id}
-                src={`https://${CLOUD_FRONT_URL}/${p.originalKey}`}
-                className="w-full h-40 object-cover rounded"
-              />
-            ))
+            photos.map((p) => {
+              const url = `https://${CLOUD_FRONT_URL}/${p.originalKey}`;
+              return (
+                <div
+                  key={p._id}
+                  className="group relative rounded overflow-hidden border"
+                >
+                  <img
+                    src={url}
+                    className="w-full h-40 object-cover cursor-pointer"
+                    onClick={() => setPreview(url)}
+                  />
+
+                  {/* TAP TO VIEW */}
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
+                    <div className="flex items-center gap-2 text-white text-xs">
+                      <Eye size={14} /> Tap to view
+                    </div>
+                  </div>
+
+                  {/* DELETE */}
+                  <button
+                    onClick={() => handleDelete(p._id)}
+                    className="absolute top-2 right-2 bg-red-600 text-white p-1 rounded opacity-0 group-hover:opacity-100"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              );
+            })
           ) : (
             <p className="text-sm text-slate-500 col-span-full">
               No photos uploaded yet.
@@ -176,7 +185,7 @@ const PhotosPage = () => {
         </div>
       </section>
 
-      {/* FULLSCREEN PREVIEW */}
+      {/* PREVIEW */}
       {preview && (
         <div
           className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center"

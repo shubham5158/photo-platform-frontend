@@ -39,3 +39,5 @@ export const getEventPhotosApi = async (eventId) => {
   const res = await api.get(`/photos/events/${eventId}`);
   return res.data;
 };
+
+export const deletePhotoApi = (photoId) => api.delete(`/photos/${photoId}`);
