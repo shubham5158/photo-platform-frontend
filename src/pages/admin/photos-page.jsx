@@ -22,6 +22,7 @@ const PhotosPage = () => {
   const [deletingId, setDeletingId] = useState(null);
   const [preview, setPreview] = useState(null);
   const [loadingPhotos, setLoadingPhotos] = useState(true);
+  const [dragActive, setDragActive] = useState(false);
 
   const CLOUD_FRONT_URL = import.meta.env.VITE_CLOUD_FRONT_URL;
 
@@ -44,9 +45,32 @@ const PhotosPage = () => {
     load();
   }, [load]);
 
-  /* ---------------- UPLOAD ---------------- */
-  const handleUpload = async (e) => {
+  /* ---------------- DRAG & DROP ---------------- */
+  const handleDragOver = (e) => {
     e.preventDefault();
+    e.stopPropagation();
+    setDragActive(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+
+    const droppedFiles = [...e.dataTransfer.files];
+    if (!droppedFiles.length) return;
+
+    setFiles(droppedFiles);
+  };
+
+  /* ---------------- UPLOAD ---------------- */
+  const handleUpload = async () => {
     if (!files.length) return toastError("Select at least 1 photo");
 
     setUploading(true);
@@ -89,11 +113,10 @@ const PhotosPage = () => {
     }
   };
 
-  /* ---------------- UI ---------------- */
   return (
     <div className="space-y-6 relative">
 
-      {/* 🔥 TOP-RIGHT GLOBAL LOADER */}
+      {/* 🔥 GLOBAL LOADER (TOP RIGHT) */}
       {(uploading || deletingId) && (
         <div className="fixed top-4 right-4 z-50 bg-white shadow-lg rounded-lg px-4 py-2 flex items-center gap-2">
           <Loader2 className="animate-spin" size={16} />
@@ -116,37 +139,51 @@ const PhotosPage = () => {
         )}
       </header>
 
-      {/* UPLOAD – DRAG & DROP */}
-      <section className="bg-white border rounded-xl p-4">
-        <form onSubmit={handleUpload} className="space-y-4">
-          <label className="border-2 border-dashed rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50 transition">
-            <input
-              type="file"
-              multiple
-              className="hidden"
-              disabled={uploading}
-              onChange={(e) => setFiles([...e.target.files])}
-            />
+      {/* DRAG & DROP ZONE */}
+      <section
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        className={`bg-white border-2 border-dashed rounded-xl p-6 transition ${
+          dragActive ? "border-slate-900 bg-slate-50" : "border-slate-300"
+        }`}
+      >
+        <div className="flex flex-col items-center gap-2 text-center">
+          <UploadCloud size={36} className="text-slate-500" />
 
-            <UploadCloud className="text-slate-500 mb-2" size={32} />
+          <p className="text-sm font-medium">
+            Drag & drop photos here or click to select
+          </p>
 
-            <p className="text-sm font-medium">
-              {files.length
-                ? `${files.length} photo(s) selected`
-                : "Click or drag photos here"}
-            </p>
-            <p className="text-xs text-slate-500">JPG / PNG supported</p>
+          <p className="text-xs text-slate-500">
+            JPG / PNG supported
+          </p>
+
+          <input
+            type="file"
+            multiple
+            disabled={uploading}
+            className="hidden"
+            id="photo-input"
+            onChange={(e) => setFiles([...e.target.files])}
+          />
+          <label
+            htmlFor="photo-input"
+            className="mt-2 px-4 py-2 bg-slate-900 text-white rounded cursor-pointer text-sm"
+          >
+            Browse Files
           </label>
 
-          <div className="flex justify-end">
+          {files.length > 0 && (
             <button
-              disabled={!files.length || uploading}
-              className="bg-slate-900 text-white px-4 py-2 rounded disabled:opacity-50"
+              onClick={handleUpload}
+              disabled={uploading}
+              className="mt-3 px-4 py-2 bg-emerald-600 text-white rounded"
             >
-              Upload Photos
+              Upload {files.length} Photo(s)
             </button>
-          </div>
-        </form>
+          )}
+        </div>
       </section>
 
       {/* PHOTO GRID */}
@@ -168,14 +205,10 @@ const PhotosPage = () => {
                   className="group relative rounded overflow-hidden border cursor-pointer"
                   onClick={() => setPreview(url)}
                 >
-                  <img
-                    src={url}
-                    className="w-full h-40 object-cover"
-                    alt=""
-                  />
+                  <img src={url} className="w-full h-40 object-cover" />
 
                   {/* TAP TO VIEW */}
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition pointer-events-none">
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
                     <div className="flex items-center gap-2 text-white text-xs">
                       <Eye size={14} /> Tap to view
                     </div>
