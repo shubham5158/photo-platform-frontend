@@ -45,41 +45,21 @@ const PhotosPage = () => {
     load();
   }, [load]);
 
-  useEffect(() => {
-  const prevent = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-  };
-
-  window.addEventListener("dragover", prevent);
-  window.addEventListener("drop", prevent);
-
-  return () => {
-    window.removeEventListener("dragover", prevent);
-    window.removeEventListener("drop", prevent);
-  };
-}, []);
-
-
   /* ---------------- DRAG & DROP ---------------- */
   const handleDragOver = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault(); // 🔥 REQUIRED
     setDragActive(true);
   };
 
-  const handleDragLeave = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleDragLeave = () => {
     setDragActive(false);
   };
 
   const handleDrop = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault(); // 🔥 REQUIRED
     setDragActive(false);
 
-    const droppedFiles = [...e.dataTransfer.files];
+    const droppedFiles = Array.from(e.dataTransfer.files);
     if (!droppedFiles.length) return;
 
     setFiles(droppedFiles);
@@ -90,7 +70,6 @@ const PhotosPage = () => {
     if (!files.length) return toastError("Select at least 1 photo");
 
     setUploading(true);
-
     try {
       for (const file of files) {
         const { uploadUrl, key } = await getUploadUrlApi({
@@ -132,7 +111,7 @@ const PhotosPage = () => {
   return (
     <div className="space-y-6 relative">
 
-      {/* 🔥 GLOBAL LOADER (TOP RIGHT) */}
+      {/* 🔥 TOP RIGHT GLOBAL LOADER */}
       {(uploading || deletingId) && (
         <div className="fixed top-4 right-4 z-50 bg-white shadow-lg rounded-lg px-4 py-2 flex items-center gap-2">
           <Loader2 className="animate-spin" size={16} />
@@ -160,32 +139,34 @@ const PhotosPage = () => {
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        className={`bg-white border-2 border-dashed rounded-xl p-6 transition ${
-          dragActive ? "border-slate-900 bg-slate-50" : "border-slate-300"
+        className={`bg-white border-2 border-dashed rounded-xl p-8 transition ${
+          dragActive
+            ? "border-slate-900 bg-slate-50"
+            : "border-slate-300"
         }`}
       >
-        <div className="flex flex-col items-center gap-2 text-center">
-          <UploadCloud size={36} className="text-slate-500" />
+        <div className="flex flex-col items-center gap-3 text-center">
+          <UploadCloud size={40} className="text-slate-500" />
 
           <p className="text-sm font-medium">
-            Drag & drop photos here or click to select
+            Drag photos from your computer here
           </p>
 
           <p className="text-xs text-slate-500">
-            JPG / PNG supported
+            or click to browse (JPG / PNG)
           </p>
 
           <input
             type="file"
             multiple
-            disabled={uploading}
-            className="hidden"
+            hidden
             id="photo-input"
             onChange={(e) => setFiles([...e.target.files])}
           />
+
           <label
             htmlFor="photo-input"
-            className="mt-2 px-4 py-2 bg-slate-900 text-white rounded cursor-pointer text-sm"
+            className="px-4 py-2 bg-slate-900 text-white rounded cursor-pointer text-sm"
           >
             Browse Files
           </label>
@@ -236,7 +217,6 @@ const PhotosPage = () => {
                       e.stopPropagation();
                       handleDelete(p._id);
                     }}
-                    disabled={deletingId === p._id}
                     className="absolute top-2 right-2 bg-red-600 text-white p-1 rounded opacity-0 group-hover:opacity-100"
                   >
                     {deletingId === p._id ? (
