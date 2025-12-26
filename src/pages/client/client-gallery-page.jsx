@@ -140,9 +140,7 @@ const ClientGalleryPage = () => {
                   <Heart
                     size={16}
                     className={
-                      isFavorite
-                        ? "fill-red-500 text-red-500"
-                        : "text-white"
+                      isFavorite ? "fill-red-500 text-red-500" : "text-white"
                     }
                   />
                 </button>
@@ -168,31 +166,48 @@ const ClientGalleryPage = () => {
       {/* LIGHTBOX */}
       {activePhoto && (
         <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center">
+          {/* CLOSE */}
           <button
             onClick={() => setActivePhoto(null)}
-            className="absolute top-6 right-6 text-white"
+            className="absolute top-6 right-6 text-white z-50"
           >
             <X size={28} />
           </button>
 
-          <img
-            src={activePhoto.watermarkedUrl}
-            className="max-h-[90vh] max-w-[90vw] object-contain rounded-xl"
-          />
+          {/* IMAGE WRAPPER */}
+          <div className="relative max-h-[90vh] max-w-[90vw]">
+            {/* PHOTO */}
+            <img
+              src={activePhoto.watermarkedUrl}
+              className="max-h-[90vh] max-w-[90vw] object-contain rounded-xl"
+            />
 
-          <div className="absolute bottom-6 flex gap-4">
+            {/* WATERMARK OVERLAY */}
+            <img
+              src="https://db71fqi33p60s.cloudfront.net/watermarks/logo.jpg"
+              className="
+          absolute bottom-6 right-6
+          w-28 md:w-36
+          opacity-50
+          pointer-events-none
+          select-none
+          drop-shadow-lg
+        "
+            />
+          </div>
+
+          {/* ACTIONS */}
+          <div className="absolute bottom-6 flex gap-4 z-50">
             <button
               onClick={() => toggleSelect(activePhoto.id)}
               className={`px-6 py-2 rounded-lg font-semibold
-                ${
-                  selected.has(activePhoto.id)
-                    ? "bg-amber-400 text-black"
-                    : "bg-white/10 text-white"
-                }`}
+          ${
+            selected.has(activePhoto.id)
+              ? "bg-amber-400 text-black"
+              : "bg-white/10 text-white"
+          }`}
             >
-              {selected.has(activePhoto.id)
-                ? "Added to cart"
-                : "Add to cart"}
+              {selected.has(activePhoto.id) ? "Added to cart" : "Add to cart"}
             </button>
 
             <button
