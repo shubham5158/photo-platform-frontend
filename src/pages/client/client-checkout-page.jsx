@@ -40,21 +40,20 @@ const ClientCheckoutPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSubmitting(true); // 🔴 START BUTTON LOADER
 
-    const t = toast.loading("Creating order...");
     try {
-      // 🔴 UPDATED: email parameter नाही
       const order = await createOrderFromGalleryApi(code, selectedIds);
 
-      toast.dismiss(t);
       toastSuccess("Order created!");
 
       navigate(`/download/${order.downloadToken}`, {
         state: { orderId: order.orderId },
       });
     } catch {
-      toast.dismiss(t);
       toastError("Order failed");
+    } finally {
+      setSubmitting(false); // 🔴 STOP BUTTON LOADER
     }
   };
 
@@ -114,14 +113,24 @@ const ClientCheckoutPage = () => {
           <button
             disabled={submitting}
             className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold transition
-              ${
-                submitting
-                  ? "bg-neutral-600 text-neutral-300"
-                  : "bg-amber-400 text-black hover:bg-amber-300"
-              }`}
+    ${
+      submitting
+        ? "bg-neutral-700 text-neutral-300 cursor-not-allowed"
+        : "bg-amber-400 text-black hover:bg-amber-300"
+    }`}
           >
-            <Lock size={18} />
-            {submitting ? "Processing..." : "Confirm & Get Download Link"}
+            {submitting ? (
+              <>
+                {/* SPINNER */}
+                <span className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                Processing...
+              </>
+            ) : (
+              <>
+                <Lock size={18} />
+                Confirm & Get Download Link
+              </>
+            )}
           </button>
         </form>
 
