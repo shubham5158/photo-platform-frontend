@@ -1,14 +1,13 @@
-import React, { useEffect, useState, useCallback } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { getGalleryByCodeApi } from "../../api/Gallery.jsx";
-import { toastError, toastSuccess } from "../../utils/toast.jsx";
-import ClientImageGridSkeleton from "../../components/ui/ClientImageGridSkeleton.jsx";
-import Skeleton from "../../components/ui/Skeleton.jsx";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import { Heart } from "lucide-react";
+import axios from "axios";
 
-const ClientGalleryPage = () => {
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
+const ASSETS_CDN = "https://db71fqi33p60s.cloudfront.net"; // ASSETS CloudFront
+
+export default function ClientGalleryPage() {
   const { code } = useParams();
-  const navigate = useNavigate();
 
   const [event, setEvent] = useState(null);
   const [photos, setPhotos] = useState([]);
@@ -16,175 +15,182 @@ const ClientGalleryPage = () => {
   const [favorites, setFavorites] = useState(new Set());
   const [loading, setLoading] = useState(true);
 
-  /* =====================================================
+  /* ============================
      LOAD GALLERY
-  ===================================================== */
+  ============================ */
   useEffect(() => {
-    const load = async () => {
+    const loadGallery = async () => {
       try {
-        const data = await getGalleryByCodeApi(code);
-        setEvent(data.event);
-        setPhotos(data.photos);
-
-        // 🔥 restore favorites
-        const saved = localStorage.getItem(`fav-${code}`);
-        if (saved) {
-          setFavorites(new Set(JSON.parse(saved)));
-        }
-      } catch {
-        toastError("Gallery not found or expired");
+        const res = await axios.get(
+          `${API_BASE}/gallery/${code}`
+        );
+        setEvent(res.data.event);
+        setPhotos(res.data.photos);
+      } catch (err) {
+        console.error("Gallery load failed", err);
       } finally {
         setLoading(false);
       }
     };
-    load();
+
+    loadGallery();
   }, [code]);
 
-  /* =====================================================
-     TOGGLE SELECT (FOR PURCHASE)
-  ===================================================== */
-  const toggleSelect = useCallback((id) => {
+  /* ============================
+     SELECTION HANDLERS
+  ============================ */
+  const toggleSelect = (id) => {
     setSelected((prev) => {
       const next = new Set(prev);
       next.has(id) ? next.delete(id) : next.add(id);
       return next;
     });
-  }, []);
+  };
 
-  /* =====================================================
-     TOGGLE FAVORITE (❤️)
-  ===================================================== */
-  const toggleFavorite = useCallback(
-    (id) => {
-      setFavorites((prev) => {
-        const next = new Set(prev);
-        next.has(id) ? next.delete(id) : next.add(id);
-
-        // persist
-        localStorage.setItem(`fav-${code}`, JSON.stringify([...next]));
-
-        return next;
-      });
-    },
-    [code]
-  );
-
-  /* =====================================================
-     CHECKOUT
-  ===================================================== */
-  const handleCheckout = () => {
-    if (!selected.size) return toastError("Select at least one photo");
-
-    toastSuccess("Proceeding to checkout...");
-    navigate(`/g/${code}/checkout`, {
-      state: { selectedIds: [...selected] },
+  const toggleFavorite = (id) => {
+    setFavorites((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
     });
   };
 
-  /* =====================================================
-     LOADING UI
-  ===================================================== */
-  if (loading)
-    return (
-      <div className="min-h-screen bg-slate-950 text-slate-50 p-6">
-        <div className="max-w-5xl mx-auto">
-          <Skeleton className="h-6 w-48 mb-2" />
-          <Skeleton className="h-4 w-72 mb-6" />
+  const handleCheckout = () => {
+    alert(`Selected ${selected.size} photos`);
+    // next step: price preview / checkout
+  };
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-            <ClientImageGridSkeleton count={12} />
-          </div>
-        </div>
+  /* ============================
+     UI STATES
+  ============================ */
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-white">
+        Loading gallery…
       </div>
     );
+  }
 
-  /* =====================================================
-     UI
-  ===================================================== */
-  return (
-    <div className="min-h-screen bg-slate-950 text-slate-50">
-      <div className="max-w-5xl mx-auto p-6">
-        <h1 className="text-2xl font-semibold">{event?.name}</h1>
-        <p className="text-sm text-slate-400">
-          ❤️ Mark favorites • Tap photo to select for purchase
-        </p>
-
-        {/* PHOTOS GRID */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mt-6">
-          {photos.map((p) => {
-            const isSelected = selected.has(p.id);
-            const isFavorite = favorites.has(p.id);
-
-            return (
-              <div
-                key={p.id}
-                className={`relative rounded overflow-hidden border cursor-pointer ...`}
-                style={{ isolation: "isolate" }}
-                onClick={() => toggleSelect(p.id)}
-              >
-                <img
-                  src={p.watermarkedUrl}
-                  className="w-full h-40 object-cover"
-                />
-
-                {/* WATERMARK */}
-                <img
-                   src="https://db71fqi33p60s.cloudfront.net/watermarks/logo.jpg"
-                  className="absolute bottom-2 right-2 w-14 opacity-40 pointer-events-none z-20"
-                />
-
-                {/* FAVORITE BUTTON */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggleFavorite(p.id);
-                  }}
-                  className="absolute top-2 right-2 bg-black/60 p-1.5 rounded-full"
-                >
-                  <Heart
-                    size={16}
-                    className={
-                      isFavorite ? "fill-red-500 text-red-500" : "text-white"
-                    }
-                  />
-                </button>
-
-                {/* LABEL */}
-                <span className="absolute bottom-2 left-2 bg-black/70 text-xs px-2 py-1 rounded">
-                  {isSelected ? "Selected" : "Tap to select"}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* FOOTER BAR */}
-        <div className="flex justify-between items-center mt-6">
-          <div className="text-sm space-y-1">
-            <p>
-              Selected:{" "}
-              <span className="text-amber-300 font-semibold">
-                {selected.size}
-              </span>
-            </p>
-            <p>
-              Favorites:{" "}
-              <span className="text-red-400 font-semibold">
-                {favorites.size}
-              </span>
-            </p>
-          </div>
-
-          <button
-            onClick={handleCheckout}
-            className="px-5 py-2 bg-amber-400 text-slate-900 font-semibold rounded"
-          >
-            Continue ({selected.size})
-          </button>
-        </div>
+  if (!event) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-red-400">
+        Gallery not found
       </div>
+    );
+  }
+
+  /* ============================
+     RENDER
+  ============================ */
+  return (
+    <div className="min-h-screen bg-black text-white pb-24">
+      {/* HEADER */}
+      <header className="px-5 py-4 border-b border-white/10">
+        <h1 className="text-lg font-semibold">{event.name}</h1>
+        <p className="text-xs text-slate-400">
+          Tap photos to select • Watermarked previews
+        </p>
+      </header>
+
+      {/* GALLERY GRID */}
+      <div className="p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        {photos.map((p) => {
+          const isSelected = selected.has(p.id);
+          const isFav = favorites.has(p.id);
+
+          return (
+            <div
+              key={p.id}
+              onClick={() => toggleSelect(p.id)}
+              className="relative rounded-lg overflow-hidden cursor-pointer border border-white/10 group"
+              style={{ isolation: "isolate" }}
+            >
+              {/* IMAGE */}
+              <img
+                src={`${ASSETS_CDN}/${p.originalKey}`}
+                className="w-full h-44 object-cover transition-transform duration-300 group-hover:scale-105"
+                draggable={false}
+                onContextMenu={(e) => e.preventDefault()}
+              />
+
+              {/* SELECT OVERLAY */}
+              {isSelected && (
+                <div className="absolute inset-0 bg-black/50 z-10" />
+              )}
+
+              {/* CHECKBOX */}
+              <div className="absolute top-2 left-2 z-20">
+                <div
+                  className={`w-5 h-5 rounded border flex items-center justify-center
+                  ${
+                    isSelected
+                      ? "bg-amber-400 border-amber-400"
+                      : "border-white/70"
+                  }`}
+                >
+                  {isSelected && (
+                    <span className="text-black text-xs font-bold">
+                      ✓
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* FAVORITE */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleFavorite(p.id);
+                }}
+                className="absolute top-2 right-2 z-20 bg-black/60 p-1.5 rounded-full"
+              >
+                <Heart
+                  size={16}
+                  className={
+                    isFav
+                      ? "fill-red-500 text-red-500"
+                      : "text-white"
+                  }
+                />
+              </button>
+
+              {/* WATERMARK */}
+              <img
+                src={`${ASSETS_CDN}/watermarks/logo.jpg`}
+                className="absolute bottom-2 right-2 w-14 opacity-40 pointer-events-none z-20"
+                draggable={false}
+              />
+            </div>
+          );
+        })}
+      </div>
+
+      {/* STICKY CART BAR */}
+      {selected.size > 0 && (
+        <div className="fixed bottom-0 left-0 right-0 bg-black/90 backdrop-blur border-t border-white/10 z-50">
+          <div className="max-w-5xl mx-auto px-5 py-3 flex items-center justify-between">
+            <div className="text-sm">
+              <p>
+                Selected{" "}
+                <span className="text-amber-400 font-semibold">
+                  {selected.size}
+                </span>{" "}
+                photos
+              </p>
+              <p className="text-xs text-slate-400">
+                High-resolution downloads after payment
+              </p>
+            </div>
+
+            <button
+              onClick={handleCheckout}
+              className="px-6 py-2 rounded bg-amber-400 text-black font-semibold active:scale-95"
+            >
+              Add to Cart
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
-};
-
-export default ClientGalleryPage;
+}
