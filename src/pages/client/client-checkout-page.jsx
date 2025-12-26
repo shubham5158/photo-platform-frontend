@@ -5,6 +5,7 @@ import { createOrderFromGalleryApi } from "../../api/Orders.jsx";
 import { toastSuccess, toastError } from "../../utils/toast.jsx";
 import toast from "react-hot-toast";
 import CheckoutSkeleton from "../../components/ui/CheckoutSkeleton.jsx";
+import { Lock, Mail, CheckCircle } from "lucide-react";
 
 const ClientCheckoutPage = () => {
   const { code } = useParams();
@@ -22,17 +23,19 @@ const ClientCheckoutPage = () => {
       navigate(`/g/${code}`);
       return;
     }
+
     const loadPrice = async () => {
       try {
         const price = await getPricePreviewApi(code, selectedIds);
         setPricing(price);
-        toastSuccess("Price loaded");
+        toastSuccess("Pricing calculated");
       } catch {
-        toastError("Could not load price");
+        toastError("Could not load pricing");
       } finally {
         setLoadingPrice(false);
       }
     };
+
     loadPrice();
   }, [code, selectedIds]);
 
@@ -40,11 +43,12 @@ const ClientCheckoutPage = () => {
     e.preventDefault();
     if (!email) return toastError("Email required");
 
-    const t = toast.loading("Creating order...");
+    setSubmitting(true);
+    const t = toast.loading("Creating secure order...");
     try {
       const order = await createOrderFromGalleryApi(code, selectedIds, email);
       toast.dismiss(t);
-      toastSuccess("Order created!");
+      toastSuccess("Order confirmed");
 
       navigate(`/download/${order.downloadToken}`, {
         state: { orderId: order.orderId },
@@ -52,57 +56,100 @@ const ClientCheckoutPage = () => {
     } catch {
       toast.dismiss(t);
       toastError("Order failed");
+    } finally {
+      setSubmitting(false);
     }
   };
 
   if (loadingPrice)
     return (
-      <div className="min-h-screen bg-slate-950 flex justify-center items-center px-4">
+      <div className="min-h-screen bg-[#0b0b0d] flex items-center justify-center px-4">
         <CheckoutSkeleton />
       </div>
     );
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-50 flex justify-center items-center px-4">
-      <div className="bg-slate-900/80 border border-slate-700 p-6 rounded-xl max-w-lg w-full">
-        <h1 className="text-xl font-semibold mb-3">Checkout</h1>
+    <div className="min-h-screen bg-[#0b0b0d] text-white flex items-center justify-center px-4">
+      <div className="w-full max-w-xl bg-[#121215] border border-white/10 rounded-2xl shadow-xl p-6 md:p-8">
+        {/* HEADER */}
+        <div className="mb-6">
+          <h1 className="text-2xl font-semibold tracking-tight">
+            Secure Checkout
+          </h1>
+          <p className="text-sm text-neutral-400 mt-1">
+            Your selected photos will be delivered in full resolution
+          </p>
+        </div>
 
-        <p className="text-sm text-slate-300 mb-4">
-          You selected {selectedIds.length} photos.
-        </p>
-
-        {pricing && (
-          <div className="bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm space-y-1">
-            <div>Base price: ₹{pricing.basePrice}</div>
-            <div>Gross: ₹{pricing.gross}</div>
-            <div>
-              Discount: {pricing.discountPercent}% (₹{pricing.discountAmount})
-            </div>
-            <div className="font-semibold text-amber-300">
-              Total: ₹{pricing.net}
-            </div>
+        {/* SUMMARY */}
+        <div className="rounded-xl bg-black/40 border border-white/10 p-4 text-sm space-y-1">
+          <div className="flex justify-between">
+            <span>Selected photos</span>
+            <span>{selectedIds.length}</span>
           </div>
-        )}
+          <div className="flex justify-between">
+            <span>Base price</span>
+            <span>₹{pricing.basePrice}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Gross</span>
+            <span>₹{pricing.gross}</span>
+          </div>
+          <div className="flex justify-between text-amber-300">
+            <span>Discount</span>
+            <span>
+              {pricing.discountPercent}% (₹{pricing.discountAmount})
+            </span>
+          </div>
+          <div className="flex justify-between text-lg font-semibold text-amber-400 pt-2">
+            <span>Total</span>
+            <span>₹{pricing.net}</span>
+          </div>
+        </div>
 
-        <form className="space-y-3 mt-4" onSubmit={handleSubmit}>
+        {/* FORM */}
+        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <div>
-            <label className="text-sm">Your Email</label>
-            <input
-              type="email"
-              className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded text-sm"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-            />
+            <label className="text-sm mb-1 block text-neutral-300">
+              Email for download link
+            </label>
+            <div className="relative">
+              <Mail
+                size={16}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400"
+              />
+              <input
+                type="email"
+                className="w-full pl-9 pr-3 py-2.5 rounded-lg bg-black/40 border border-white/10 focus:outline-none focus:ring-2 focus:ring-amber-400 text-sm"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
           </div>
 
           <button
             disabled={submitting}
-            className="w-full bg-amber-400 text-slate-900 py-2 rounded font-semibold"
+            className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold transition
+              ${
+                submitting
+                  ? "bg-neutral-600 text-neutral-300"
+                  : "bg-amber-400 text-black hover:bg-amber-300"
+              }`}
           >
+            <Lock size={18} />
             {submitting ? "Processing..." : "Confirm & Get Download Link"}
           </button>
         </form>
+
+        {/* TRUST */}
+        <div className="mt-5 flex items-start gap-2 text-xs text-neutral-400">
+          <CheckCircle size={16} className="text-amber-400 mt-0.5" />
+          <p>
+            Photos are delivered securely in original quality after confirmation.
+            Links may expire for security.
+          </p>
+        </div>
       </div>
     </div>
   );
