@@ -14,7 +14,6 @@ const ClientCheckoutPage = () => {
 
   const selectedIds = location.state?.selectedIds || [];
   const [pricing, setPricing] = useState(null);
-  const [email, setEmail] = useState("");
   const [loadingPrice, setLoadingPrice] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
@@ -41,14 +40,14 @@ const ClientCheckoutPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email) return toastError("Email required");
 
-    setSubmitting(true);
-    const t = toast.loading("Creating secure order...");
+    const t = toast.loading("Creating order...");
     try {
-      const order = await createOrderFromGalleryApi(code, selectedIds, email);
+      // 🔴 UPDATED: email parameter नाही
+      const order = await createOrderFromGalleryApi(code, selectedIds);
+
       toast.dismiss(t);
-      toastSuccess("Order confirmed");
+      toastSuccess("Order created!");
 
       navigate(`/download/${order.downloadToken}`, {
         state: { orderId: order.orderId },
@@ -56,8 +55,6 @@ const ClientCheckoutPage = () => {
     } catch {
       toast.dismiss(t);
       toastError("Order failed");
-    } finally {
-      setSubmitting(false);
     }
   };
 
@@ -109,24 +106,10 @@ const ClientCheckoutPage = () => {
 
         {/* FORM */}
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-          <div>
-            <label className="text-sm mb-1 block text-neutral-300">
-              Email for download link
-            </label>
-            <div className="relative">
-              <Mail
-                size={16}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400"
-              />
-              <input
-                type="email"
-                className="w-full pl-9 pr-3 py-2.5 rounded-lg bg-black/40 border border-white/10 focus:outline-none focus:ring-2 focus:ring-amber-400 text-sm"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-          </div>
+          <p className="text-sm text-neutral-400">
+            📧 Download link will be sent to the email used while creating this
+            event.
+          </p>
 
           <button
             disabled={submitting}
@@ -146,8 +129,8 @@ const ClientCheckoutPage = () => {
         <div className="mt-5 flex items-start gap-2 text-xs text-neutral-400">
           <CheckCircle size={16} className="text-amber-400 mt-0.5" />
           <p>
-            Photos are delivered securely in original quality after confirmation.
-            Links may expire for security.
+            Photos are delivered securely in original quality after
+            confirmation. Links may expire for security.
           </p>
         </div>
       </div>

@@ -1,19 +1,19 @@
-import api from "./Client.jsx";
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-export const createOrderFromGalleryApi = async (code, photoIds, clientEmail) => {
-  const res = await api.post(`/orders/gallery/${code}`, {
-    photoIds,
-    clientEmail,
-  });
-  return res.data;
-};
+  const t = toast.loading("Creating order...");
+  try {
+    // 🔴 UPDATED: email parameter नाही
+    const order = await createOrderFromGalleryApi(code, selectedIds);
 
-export const getAdminOrdersApi = async () => {
-  const res = await api.get("/orders/admin");
-  return res.data;
-};
+    toast.dismiss(t);
+    toastSuccess("Order created!");
 
-export const getDownloadByTokenApi = async (token) => {
-  const res = await api.get(`/download/${token}`);
-  return res.data;
+    navigate(`/download/${order.downloadToken}`, {
+      state: { orderId: order.orderId },
+    });
+  } catch {
+    toast.dismiss(t);
+    toastError("Order failed");
+  }
 };
