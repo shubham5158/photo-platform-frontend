@@ -1,19 +1,34 @@
-const handleSubmit = async (e) => {
-  e.preventDefault();
+import api from "./Client.jsx";
 
-  const t = toast.loading("Creating order...");
-  try {
-    // 🔴 UPDATED: email parameter नाही
-    const order = await createOrderFromGalleryApi(code, selectedIds);
+/**
+ * ===============================
+ * CLIENT – CREATE ORDER FROM GALLERY
+ * ===============================
+ */
+export const createOrderFromGalleryApi = async (code, photoIds) => {
+  const res = await api.post(`/orders/gallery/${code}`, {
+    photoIds,
+  });
+  return res.data;
+};
 
-    toast.dismiss(t);
-    toastSuccess("Order created!");
+/**
+ * ===============================
+ * ADMIN – GET ALL ORDERS
+ * 🔴 REQUIRED BY admin-home-page.jsx
+ * ===============================
+ */
+export const getAdminOrdersApi = async () => {
+  const res = await api.get("/orders/admin");
+  return res.data;
+};
 
-    navigate(`/download/${order.downloadToken}`, {
-      state: { orderId: order.orderId },
-    });
-  } catch {
-    toast.dismiss(t);
-    toastError("Order failed");
-  }
+/**
+ * ===============================
+ * CLIENT – DOWNLOAD BY TOKEN
+ * ===============================
+ */
+export const getDownloadByTokenApi = async (token) => {
+  const res = await api.get(`/download/${token}`);
+  return res.data;
 };
