@@ -129,7 +129,7 @@ const ClientGalleryPage = () => {
 
                 {/* WATERMARK */}
                 <img
-                  src="/watermark.png"
+                  src="/watermark.jpg"
                   className="absolute bottom-2 right-2 w-14 opacity-40 pointer-events-none z-20"
                 />
 
