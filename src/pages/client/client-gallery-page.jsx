@@ -129,7 +129,7 @@ const ClientGalleryPage = () => {
 
                 {/* WATERMARK */}
                 <img
-                   src="https://d3cdgrtnkcp7dy.cloudfront.net/watermarks/logo.jpg"
+                   src="https://db71fqi33p60s.cloudfront.net/watermarks/logo.jpg"
                   className="absolute bottom-2 right-2 w-14 opacity-40 pointer-events-none z-20"
                 />
 
