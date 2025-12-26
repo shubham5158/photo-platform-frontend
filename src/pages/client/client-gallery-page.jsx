@@ -86,7 +86,11 @@ const ClientGalleryPage = () => {
     );
 
   return (
-    <div className={`min-h-screen ${BRAND.bg} text-white pb-28`}>
+    <div
+      className={`min-h-screen ${BRAND.bg} text-white pb-28 select-none`}
+      onContextMenu={(e) => e.preventDefault()}
+      onDragStart={(e) => e.preventDefault()}
+    >
       <div className="max-w-6xl mx-auto px-4 pt-6">
         {/* HEADER */}
         <div className="mb-8">
@@ -119,8 +123,10 @@ const ClientGalleryPage = () => {
                 <img
                   src={p.watermarkedUrl}
                   alt=""
+                  draggable={false}
+                  onContextMenu={(e) => e.preventDefault()}
                   onClick={() => setActivePhoto(p)}
-                  className="w-full object-cover hover:scale-[1.02] transition"
+                  className="w-full object-cover hover:scale-[1.02] transition pointer-events-none select-none"
                 />
 
                 {/* WATERMARK */}
@@ -175,24 +181,29 @@ const ClientGalleryPage = () => {
           </button>
 
           {/* IMAGE WRAPPER */}
-          <div className="relative max-h-[90vh] max-w-[90vw]">
+          <div
+            className="relative max-h-[90vh] max-w-[90vw]"
+            onContextMenu={(e) => e.preventDefault()}
+            onDragStart={(e) => e.preventDefault()}
+          >
             {/* PHOTO */}
             <img
               src={activePhoto.watermarkedUrl}
-              className="max-h-[90vh] max-w-[90vw] object-contain rounded-xl"
+              draggable={false}
+              className="max-h-[90vh] max-w-[90vw] object-contain rounded-xl pointer-events-none select-none"
             />
 
             {/* WATERMARK OVERLAY */}
             <img
               src="https://db71fqi33p60s.cloudfront.net/watermarks/logo.jpg"
               className="
-          absolute bottom-6 right-6
-          w-28 md:w-36
-          opacity-50
-          pointer-events-none
-          select-none
-          drop-shadow-lg
-        "
+      absolute bottom-6 right-6
+      w-28 md:w-36
+      opacity-50
+      pointer-events-none
+      select-none
+      drop-shadow-lg
+    "
             />
           </div>
 
