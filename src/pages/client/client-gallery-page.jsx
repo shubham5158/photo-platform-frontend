@@ -118,11 +118,8 @@ const ClientGalleryPage = () => {
             return (
               <div
                 key={p.id}
-                className={`relative rounded overflow-hidden border cursor-pointer ${
-                  isSelected
-                    ? "border-amber-400 ring-2 ring-amber-400/70"
-                    : "border-slate-800"
-                }`}
+                className={`relative rounded overflow-hidden border cursor-pointer ...`}
+                style={{ isolation: "isolate" }}
                 onClick={() => toggleSelect(p.id)}
               >
                 <img
@@ -133,7 +130,7 @@ const ClientGalleryPage = () => {
                 {/* WATERMARK */}
                 <img
                   src="/watermark.png"
-                  className="absolute bottom-2 right-2 w-14 opacity-40 pointer-events-none"
+                  className="absolute bottom-2 right-2 w-14 opacity-40 pointer-events-none z-20"
                 />
 
                 {/* FAVORITE BUTTON */}
