@@ -61,10 +61,7 @@ const ClientGalleryPage = () => {
         next.has(id) ? next.delete(id) : next.add(id);
 
         // persist
-        localStorage.setItem(
-          `fav-${code}`,
-          JSON.stringify([...next])
-        );
+        localStorage.setItem(`fav-${code}`, JSON.stringify([...next]));
 
         return next;
       });
@@ -133,6 +130,12 @@ const ClientGalleryPage = () => {
                   className="w-full h-40 object-cover"
                 />
 
+                {/* WATERMARK */}
+                <img
+                  src="/watermark.png"
+                  className="absolute bottom-2 right-2 w-14 opacity-40 pointer-events-none"
+                />
+
                 {/* FAVORITE BUTTON */}
                 <button
                   onClick={(e) => {
@@ -144,9 +147,7 @@ const ClientGalleryPage = () => {
                   <Heart
                     size={16}
                     className={
-                      isFavorite
-                        ? "fill-red-500 text-red-500"
-                        : "text-white"
+                      isFavorite ? "fill-red-500 text-red-500" : "text-white"
                     }
                   />
                 </button>
