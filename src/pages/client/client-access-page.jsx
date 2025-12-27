@@ -3,11 +3,14 @@ import { Camera, ArrowLeft } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import { toastError } from "../../utils/toast.jsx";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const ClientAccessPage = () => {
   const [accessCode, setAccessCode] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleAccessCodeSubmit = (e) => {
+  const handleAccessCodeSubmit = async (e) => {
     e.preventDefault();
 
     const code = accessCode.trim();
@@ -16,7 +19,28 @@ const ClientAccessPage = () => {
       return;
     }
 
-    navigate(`/g/${code}`);
+    try {
+      setLoading(true);
+
+      // 🔥 VERIFY CODE WITH BACKEND
+      const res = await fetch(`${API_BASE_URL}/gallery/${code}`);
+
+      if (!res.ok) {
+        if (res.status === 404) {
+          toastError("Invalid access code. Please check and try again.");
+        } else {
+          toastError("Unable to verify access code");
+        }
+        return; // ❌ DO NOT NAVIGATE
+      }
+
+      // ✅ VALID CODE → ALLOW ACCESS
+      navigate(`/g/${code}`);
+    } catch (err) {
+      toastError("Network error. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -28,9 +52,7 @@ const ClientAccessPage = () => {
             <Camera className="h-8 w-8 text-primary" />
           </div>
 
-          <h1 className="text-2xl font-bold mb-2">
-            Access Your Gallery
-          </h1>
+          <h1 className="text-2xl font-bold mb-2">Access Your Gallery</h1>
 
           <p className="text-muted-foreground">
             Enter your event access code to view your photos
@@ -40,20 +62,15 @@ const ClientAccessPage = () => {
         {/* FORM */}
         <form onSubmit={handleAccessCodeSubmit} className="space-y-4">
           <div className="space-y-1">
-            <label
-              htmlFor="access-code"
-              className="text-sm font-medium"
-            >
+            <label htmlFor="access-code" className="text-sm font-medium">
               Access Code
             </label>
 
             <input
               id="access-code"
-              placeholder="e.g., MRO2024"
+              placeholder="e.g., da322f70"
               value={accessCode}
-              onChange={(e) =>
-                setAccessCode(e.target.value.toUpperCase())
-              }
+              onChange={(e) => setAccessCode(e.target.value.toLowerCase())}
               className="w-full text-center text-lg font-mono px-3 py-2 rounded-md border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
             />
 
@@ -64,10 +81,10 @@ const ClientAccessPage = () => {
 
           <button
             type="submit"
-            disabled={!accessCode}
+            disabled={!accessCode || loading}
             className="w-full bg-primary text-primary-foreground py-2 rounded-md font-medium disabled:opacity-50"
           >
-            Access Gallery
+            {loading ? "Checking..." : "Access Gallery"}
           </button>
         </form>
 
