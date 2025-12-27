@@ -27,14 +27,11 @@ const HomePage = () => {
           </div>
 
           <div className="hidden md:flex items-center gap-6">
-            <a onClick={(e) => scrollTo(e, "#portfolio")} href="#portfolio" className="text-sm hover:text-primary">
+            <a href="#portfolio" onClick={(e) => scrollTo(e, "#portfolio")} className="text-sm hover:text-primary">
               Portfolio
             </a>
-            <a onClick={(e) => scrollTo(e, "#services")} href="#services" className="text-sm hover:text-primary">
+            <a href="#services" onClick={(e) => scrollTo(e, "#services")} className="text-sm hover:text-primary">
               Services
-            </a>
-            <a onClick={(e) => scrollTo(e, "#about")} href="#about" className="text-sm hover:text-primary">
-              About
             </a>
             <Button variant="outline" size="sm">Client Access</Button>
             <Button size="sm">Admin</Button>
@@ -132,19 +129,62 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* ================= CTA ================= */}
-      <section className="py-20 px-4 text-center">
-        <h2 className="text-4xl font-bold mb-4">Ready to Access Your Photos?</h2>
-        <p className="text-muted-foreground mb-8">
-          Scan your QR code or enter event access code
-        </p>
-        <div className="flex justify-center gap-4">
-          <Button size="lg" className="gap-2">
-            Client Access <ArrowRight className="h-4 w-4" />
-          </Button>
-          <Button size="lg" variant="outline">
-            Learn More
-          </Button>
+      {/* ================= PORTFOLIO ================= */}
+      <section id="portfolio" className="py-20 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-4">Recent Work</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              A glimpse into our portfolio of powerful athletic moments
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[
+              { title: "Mr. Olympia 2024", count: "1,250 photos", image: "https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=600" },
+              { title: "Arnold Classic", count: "980 photos", image: "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?w=600" },
+              { title: "Regional Championship", count: "750 photos", image: "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=600" },
+              { title: "NPC National Show", count: "1,100 photos", image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600" },
+              { title: "Local Pro Qualifier", count: "640 photos", image: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600" },
+              { title: "Fitness Expo", count: "890 photos", image: "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=600" },
+            ].map((item, index) => (
+              <div key={index} className="group relative aspect-[3/4] rounded-xl overflow-hidden">
+                <img src={item.image} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition" />
+                <div className="absolute bottom-0 p-6 text-white translate-y-4 group-hover:translate-y-0 transition">
+                  <h3 className="text-xl font-bold">{item.title}</h3>
+                  <p className="text-sm text-white/80">{item.count}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ================= PROCESS ================= */}
+      <section className="py-20 bg-muted/30 px-4">
+        <div className="max-w-7xl mx-auto text-center">
+          <h2 className="text-4xl font-bold mb-4">How It Works</h2>
+          <p className="text-muted-foreground mb-12">
+            Simple process from event to final photos
+          </p>
+
+          <div className="grid md:grid-cols-4 gap-8">
+            {[
+              ["01", "Event Coverage", "We photograph your competition or event"],
+              ["02", "Gallery Created", "Private gallery generated with QR code"],
+              ["03", "Browse & Select", "Review and favorite your best shots"],
+              ["04", "Purchase & Download", "Buy and instantly download as ZIP"],
+            ].map(([step, title, desc]) => (
+              <div key={step}>
+                <div className="w-16 h-16 mx-auto bg-primary text-primary-foreground rounded-full flex items-center justify-center text-2xl font-bold mb-4">
+                  {step}
+                </div>
+                <h3 className="font-bold mb-2">{title}</h3>
+                <p className="text-muted-foreground">{desc}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -166,7 +206,6 @@ const HomePage = () => {
             <ul className="space-y-2 text-sm">
               <li>Portfolio</li>
               <li>Services</li>
-              <li>Client Access</li>
             </ul>
           </div>
 
@@ -180,14 +219,12 @@ const HomePage = () => {
 
           <div>
             <h4 className="font-semibold mb-3">Contact</h4>
-            <div className="space-y-2 text-sm text-muted-foreground">
-              <p className="flex items-center gap-2">
-                <Mail className="h-4 w-4" /> info@ironlens.com
-              </p>
-              <p className="flex items-center gap-2">
-                <Instagram className="h-4 w-4" /> @ironlens_photo
-              </p>
-            </div>
+            <p className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Mail className="h-4 w-4" /> info@ironlens.com
+            </p>
+            <p className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Instagram className="h-4 w-4" /> @ironlens_photo
+            </p>
           </div>
         </div>
 
