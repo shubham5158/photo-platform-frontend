@@ -83,13 +83,20 @@ const PhotosPage = () => {
   };
 
   /* ================= BULK DELETE ================= */
-  const handleBulkDelete = async () => {
+  const handleDelete = async () => {
     try {
-      await bulkDeletePhotosApi(selected);
+      if (selected.length === 1) {
+        // ✅ SINGLE DELETE
+        await deletePhotoApi(selected[0]);
+      } else {
+        // ✅ BULK DELETE
+        await bulkDeletePhotosApi(selected);
+      }
+
       toastSuccess("Photos deleted");
       setSelected([]);
       await load();
-    } catch {
+    } catch (err) {
       toastError("Delete failed");
     }
   };
@@ -124,9 +131,7 @@ const PhotosPage = () => {
               Back
             </a>
 
-            <h1 className="text-3xl font-extrabold uppercase">
-              {event?.name}
-            </h1>
+            <h1 className="text-3xl font-extrabold uppercase">{event?.name}</h1>
 
             {event && (
               <p className="text-xs text-muted-foreground">
@@ -141,7 +146,7 @@ const PhotosPage = () => {
           <div className="flex items-center gap-3">
             {selected.length > 0 && (
               <button
-                onClick={handleBulkDelete}
+                onClick={handleDelete}
                 className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded"
               >
                 <Trash2 size={16} />
@@ -167,17 +172,13 @@ const PhotosPage = () => {
         <div className="flex gap-1">
           <button
             onClick={() => setGridCols(4)}
-            className={`p-2 rounded border ${
-              gridCols === 4 ? "bg-muted" : ""
-            }`}
+            className={`p-2 rounded border ${gridCols === 4 ? "bg-muted" : ""}`}
           >
             <Grid2X2 size={18} />
           </button>
           <button
             onClick={() => setGridCols(6)}
-            className={`p-2 rounded border ${
-              gridCols === 6 ? "bg-muted" : ""
-            }`}
+            className={`p-2 rounded border ${gridCols === 6 ? "bg-muted" : ""}`}
           >
             <LayoutGrid size={18} />
           </button>
@@ -276,9 +277,7 @@ const PhotosPage = () => {
                 type="file"
                 multiple
                 accept="image/*"
-                onChange={(e) =>
-                  setFiles(Array.from(e.target.files || []))
-                }
+                onChange={(e) => setFiles(Array.from(e.target.files || []))}
                 className="hidden"
               />
 
