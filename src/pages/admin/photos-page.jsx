@@ -1,8 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
-import {
-  getEventApi
-} from "../../api/Events.jsx";
+import { getEventApi } from "../../api/Events.jsx";
 import {
   getUploadUrlApi,
   uploadToS3,
@@ -16,7 +14,6 @@ import {
   Upload,
   Trash2,
   ArrowLeft,
-  Image as ImageIcon,
   LayoutGrid,
   List,
   CheckSquare,
@@ -34,8 +31,8 @@ const PhotosPage = () => {
   const [loadingPhotos, setLoadingPhotos] = useState(true);
   const [dragActive, setDragActive] = useState(false);
 
-  /* 🔥 UI STATES (NO API CHANGE) */
-  const [view, setView] = useState("grid"); // grid | compact
+  /* UI STATES */
+  const [view, setView] = useState("grid");
   const [selected, setSelected] = useState([]);
 
   const CLOUD_FRONT_URL = import.meta.env.VITE_CLOUD_FRONT_URL;
@@ -145,17 +142,20 @@ const PhotosPage = () => {
       {/* HEADER */}
       <header className="border-b bg-card sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-6 py-4">
-          <a href="/admin" className="inline-flex items-center gap-2 text-sm mb-2">
+          <a
+            href="/admin"
+            className="inline-flex items-center gap-2 text-sm text-muted-foreground mb-2"
+          >
             <ArrowLeft className="h-4 w-4" />
             Back
           </a>
 
-          <h1 className="text-3xl font-bold uppercase">
+          <h1 className="text-3xl font-extrabold tracking-wide uppercase">
             {event?.name}
           </h1>
 
           {event && (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs text-muted-foreground mt-1">
               {new Date(event.date).toLocaleDateString()} • Gallery{" "}
               <span className="font-mono bg-muted px-2 py-0.5 rounded">
                 {event.galleryCode}
@@ -168,16 +168,24 @@ const PhotosPage = () => {
       <main className="max-w-7xl mx-auto px-6 py-8 space-y-8">
         {/* TOOLBAR */}
         <div className="flex justify-between items-center">
-          <div className="flex gap-2">
+          <div className="flex gap-1 border rounded-md overflow-hidden">
             <button
               onClick={() => setView("grid")}
-              className={`p-2 rounded ${view === "grid" && "bg-muted"}`}
+              className={`px-3 py-2 ${
+                view === "grid"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground"
+              }`}
             >
               <LayoutGrid size={18} />
             </button>
             <button
               onClick={() => setView("compact")}
-              className={`p-2 rounded ${view === "compact" && "bg-muted"}`}
+              className={`px-3 py-2 ${
+                view === "compact"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground"
+              }`}
             >
               <List size={18} />
             </button>
@@ -186,7 +194,7 @@ const PhotosPage = () => {
           {selected.length > 0 && (
             <button
               onClick={handleBulkDelete}
-              className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded"
+              className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md"
             >
               <Trash2 size={16} />
               Delete ({selected.length})
@@ -199,11 +207,11 @@ const PhotosPage = () => {
           onDragOver={handleDragOver}
           onDragLeave={() => setDragActive(false)}
           onDrop={handleDrop}
-          className={`border-2 border-dashed rounded-xl p-8 text-center ${
+          className={`border-2 border-dashed rounded-xl p-8 text-center transition ${
             dragActive ? "border-primary bg-muted" : "border-border bg-card"
           }`}
         >
-          <form onSubmit={handleUpload}>
+          <form onSubmit={handleUpload} className="space-y-4">
             <input
               type="file"
               multiple
@@ -214,16 +222,22 @@ const PhotosPage = () => {
               className="hidden"
               id="upload"
             />
-            <label htmlFor="upload" className="cursor-pointer">
-              <Upload className="mx-auto mb-2" />
-              <p className="font-medium">Upload Photos</p>
+            <label
+              htmlFor="upload"
+              className="cursor-pointer flex flex-col items-center gap-2"
+            >
+              <Upload />
+              <span className="font-medium">Upload Photos</span>
+              <span className="text-xs text-muted-foreground">
+                Click or drag & drop images
+              </span>
             </label>
 
             {files.length > 0 && (
               <button
                 type="submit"
                 disabled={uploading}
-                className="mt-4 px-6 py-2 bg-primary text-primary-foreground rounded"
+                className="px-6 py-2 bg-primary text-primary-foreground rounded-md"
               >
                 Upload {files.length} Photos
               </button>
@@ -246,13 +260,17 @@ const PhotosPage = () => {
               photos.map((p) => (
                 <div
                   key={p._id}
-                  className="relative group rounded overflow-hidden border"
+                  className={`relative group rounded overflow-hidden border ${
+                    selected.includes(p._id)
+                      ? "ring-2 ring-primary"
+                      : ""
+                  }`}
                 >
                   <img
                     src={`https://${CLOUD_FRONT_URL}/${p.originalKey}`}
                     className={`w-full ${
                       view === "grid" ? "h-40" : "h-24"
-                    } object-cover`}
+                    } object-cover cursor-pointer`}
                     onClick={() =>
                       setPreview(
                         `https://${CLOUD_FRONT_URL}/${p.originalKey}`
@@ -269,7 +287,7 @@ const PhotosPage = () => {
                           : [...s, p._id]
                       )
                     }
-                    className="absolute top-2 left-2 bg-white rounded p-1"
+                    className="absolute top-2 left-2 bg-white rounded p-1 shadow"
                   >
                     <CheckSquare
                       size={16}
