@@ -53,9 +53,6 @@ const ClientAccessPage = () => {
                 alt="Hemant Gogawale Photography"
                 className="h-8 w-auto mb-1"
               />
-              <span className="text-xs font-semibold text-center">
-                Hemant Gogawale Photography
-              </span>
             </div>
           </div>
 
