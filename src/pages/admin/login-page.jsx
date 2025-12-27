@@ -58,7 +58,7 @@ const LoginPage = () => {
               <img
                 src="/logo.png"
                 alt="Hemant Gogawale Photography"
-                className="h-7 w-auto"
+                className="h-15 w-auto"
               />
               <span className="text-xs font-semibold text-center">Hemant Gogawale Photography</span>
             </div>
