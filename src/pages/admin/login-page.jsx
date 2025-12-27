@@ -108,6 +108,18 @@ const LoginPage = () => {
             {loading ? "Logging in..." : "Login"}
           </button>
         </form>
+        {/* 👇 ONLY ADMIN SEES THIS */}
+        {role === "admin" && (
+          <p className="text-sm mt-4 text-center text-muted-foreground">
+            Don’t have an account?{" "}
+            <span
+              onClick={() => navigate("/register")}
+              className="text-primary cursor-pointer font-semibold hover:underline"
+            >
+              Register
+            </span>
+          </p>
+        )}
       </div>
     </div>
   );
