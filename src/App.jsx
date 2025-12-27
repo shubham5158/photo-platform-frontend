@@ -33,7 +33,6 @@ const ClientAccessPage = lazy(() =>
   import("./pages/client/client-access-page.jsx")
 );
 
-
 const App = () => {
   const { loading } = useAuth();
 
@@ -48,6 +47,7 @@ const App = () => {
         <Route path="/" element={<ClientLandingPage />} />
         <Route path="/client-access" element={<ClientAccessPage />} />
 
+        <Route path="/login" element={<LoginPage />} />
         <Route path="/admin/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/verify-otp" element={<VerifyOtpPage />} />
