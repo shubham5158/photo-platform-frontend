@@ -54,7 +54,7 @@ const ClientLandingPage = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* ================= HEADER ================= */}
-      {/* <header className="sticky top-0 z-50 backdrop-blur bg-black/40 border-b border-slate-800">
+      <header className="sticky top-0 z-50 backdrop-blur bg-black/40 border-b border-slate-800">
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
           <h1 className="text-lg font-semibold tracking-wide">
             Hemant Gogawale Studio
@@ -75,9 +75,7 @@ const ClientLandingPage = () => {
             </button>
           </div>
         </div>
-      </header> */}
-
-      {/*  */}
+      </header>
 
       {/* ================= HERO ================= */}
       <section className="relative h-[75vh] flex items-center justify-center">
