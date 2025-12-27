@@ -2,7 +2,7 @@ import React, { useState, useCallback } from "react";
 import { useAuth } from "../../context/auth-context.jsx";
 import { useNavigate } from "react-router-dom";
 import { toastSuccess, toastError } from "../../utils/toast.jsx";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2, Camera } from "lucide-react";
 
 const RegisterPage = () => {
   const { register } = useAuth();
@@ -42,101 +42,84 @@ const RegisterPage = () => {
   );
 
   return (
-    <div className="h-screen flex">
-      {/* LEFT IMAGE */}
-      <div
-        className="hidden lg:flex w-1/2 justify-around items-center bg-cover bg-center"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgba(0,0,0,.7),rgba(0,0,0,.7)),url(https://images.unsplash.com/photo-1650825556125-060e52d40bd0)",
-        }}
-      >
-        <div className="w-full px-20 space-y-6">
-          <h1 className="text-white font-bold text-4xl">
-            Hemant Gogawale Photostudio
-          </h1>
-          <p className="text-white">
-            Secure registration with OTP verification
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="max-w-md w-full bg-card border border-border rounded-xl shadow-lg p-6">
+        {/* HEADER */}
+        <div className="text-center mb-6">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4">
+            <Camera className="h-8 w-8 text-primary" />
+          </div>
+
+          <h1 className="text-2xl font-bold mb-1">Create Admin Account</h1>
+          <p className="text-muted-foreground text-sm">
+            Register & verify your account via OTP
           </p>
         </div>
-      </div>
 
-      {/* RIGHT FORM */}
-      <div className="flex w-full lg:w-1/2 justify-center items-center bg-white">
-        <div className="w-full px-8 md:px-32 lg:px-24">
-          <form
-            onSubmit={handleSubmit}
-            className="bg-white rounded-md shadow-2xl p-6"
-          >
-            <h1 className="text-gray-800 font-bold text-2xl mb-1">
-              Create Account
-            </h1>
-            <p className="text-sm text-gray-600 mb-8">
-              Register & verify via OTP
-            </p>
-
+        {/* FORM */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="text-sm font-medium">Full Name</label>
             <input
-              className="border mb-4 px-3 py-2 rounded-2xl w-full"
               name="name"
-              placeholder="Full Name"
               value={form.name}
               onChange={handleChange}
+              className="w-full px-3 py-2 rounded-md border border-border bg-background focus:ring-2 focus:ring-primary outline-none"
               required
             />
+          </div>
 
+          <div>
+            <label className="text-sm font-medium">Email</label>
             <input
-              className="border mb-4 px-3 py-2 rounded-2xl w-full"
-              name="email"
               type="email"
-              placeholder="Email Address"
+              name="email"
               value={form.email}
               onChange={handleChange}
+              className="w-full px-3 py-2 rounded-md border border-border bg-background focus:ring-2 focus:ring-primary outline-none"
               required
             />
+          </div>
 
-            <div className="relative border mb-6 px-3 py-2 rounded-2xl">
-              <input
-                className="w-full outline-none"
-                type={showPass ? "text" : "password"}
-                name="password"
-                placeholder="Password"
-                value={form.password}
-                onChange={handleChange}
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowPass((p) => !p)}
-                className="absolute right-3 top-2.5 text-gray-500"
-              >
-                {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
-            </div>
-
+          <div className="relative">
+            <label className="text-sm font-medium">Password</label>
+            <input
+              type={showPass ? "text" : "password"}
+              name="password"
+              value={form.password}
+              onChange={handleChange}
+              className="w-full px-3 py-2 rounded-md border border-border bg-background focus:ring-2 focus:ring-primary outline-none pr-10"
+              required
+            />
             <button
-              type="submit"
-              disabled={loading}
-              className={`w-full flex justify-center items-center gap-2 py-2 rounded-2xl text-white font-semibold transition-all ${
-                loading
-                  ? "bg-indigo-400 cursor-not-allowed"
-                  : "bg-indigo-600 hover:bg-indigo-700"
-              }`}
+              type="button"
+              onClick={() => setShowPass((p) => !p)}
+              className="absolute right-3 top-9 text-muted-foreground"
             >
-              {loading && <Loader2 className="animate-spin" size={18} />}
-              {loading ? "Creating account..." : "Register"}
+              {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
+          </div>
 
-            <p className="text-sm mt-4 text-center text-gray-600">
-              Already have an account?{" "}
-              <span
-                onClick={() => navigate("/admin/login")}
-                className="text-indigo-600 cursor-pointer font-semibold"
-              >
-                Login
-              </span>
-            </p>
-          </form>
-        </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full flex justify-center items-center gap-2 bg-primary text-primary-foreground py-2 rounded-md font-medium disabled:opacity-50"
+          >
+            {loading && <Loader2 className="animate-spin" size={18} />}
+            {loading ? "Creating account..." : "Register"}
+          </button>
+        </form>
+
+        {/* FOOTER */}
+        <p className="text-sm mt-4 text-center text-muted-foreground">
+          Already have an account?{" "}
+          <span
+            onClick={() => navigate("/login?role=admin")}
+            className="text-primary cursor-pointer font-semibold hover:underline"
+          >
+            Login
+          </span>
+        </p>
       </div>
     </div>
   );
