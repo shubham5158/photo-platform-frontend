@@ -1,74 +1,75 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { toastError } from "../../utils/toast.jsx";
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+import { useAuth } from "../../context/auth-context.jsx";
+import { toastError, toastSuccess } from "../../utils/toast.jsx";
+import { Eye, EyeOff, Loader2, Camera } from "lucide-react";
 
 const LoginPage = () => {
+  const { login } = useAuth();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+
   const role = searchParams.get("role") || "admin";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const navigate = useNavigate();
+  const handleSubmit = useCallback(
+    async (e) => {
+      e.preventDefault();
+      if (loading) return;
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
+      try {
+        setLoading(true);
 
-    if (!email || !password) {
-      toastError("Email and password required");
-      return;
-    }
+        const loggedInUser = await login(email, password);
 
-    try {
-      setLoading(true);
+        toastSuccess("Login successful!");
 
-      const res = await fetch(`${API_BASE_URL}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+        if (loggedInUser.role === "CLIENT" && loggedInUser.galleryCode) {
+          navigate(`/g/${loggedInUser.galleryCode}`);
+          return;
+        }
 
-      const data = await res.json();
+        if (loggedInUser.role === "ADMIN") {
+          navigate("/admin");
+          return;
+        }
 
-      if (!res.ok) {
-        toastError(data.message || "Login failed");
-        return;
+        navigate("/");
+      } catch (err) {
+        toastError(err?.response?.data?.message || "Login failed");
+      } finally {
+        setLoading(false);
       }
-
-      const { user, token } = data;
-      localStorage.setItem("token", token);
-
-      // 🔥 ROLE BASED REDIRECT
-      if (user.role === "CLIENT" && user.galleryCode) {
-        navigate(`/g/${user.galleryCode}`);
-        return;
-      }
-
-      navigate("/admin");
-    } catch (err) {
-      toastError("Login error");
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [email, password, login, navigate, loading]
+  );
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-card border border-border rounded-xl shadow-lg p-6">
-        <h1 className="text-2xl font-bold mb-2 text-center">
-          {role === "client" ? "Client Login" : "Admin Login"}
-        </h1>
+        {/* HEADER (ROLE BASED) */}
+        <div className="text-center mb-6">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4">
+            <Camera className="h-8 w-8 text-primary" />
+          </div>
 
-        <p className="text-muted-foreground text-center mb-6">
-          {role === "client"
-            ? "Login using the credentials sent to your email"
-            : "Login to manage events, photos, and orders"}
-        </p>
+          <h1 className="text-2xl font-bold mb-1">
+            {role === "client" ? "Client Login" : "Admin Login"}
+          </h1>
 
-        <form onSubmit={handleLogin} className="space-y-4">
+          <p className="text-muted-foreground text-sm">
+            {role === "client"
+              ? "Login using credentials sent to your email"
+              : "Secure access to manage events & galleries"}
+          </p>
+        </div>
+
+        {/* FORM */}
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="text-sm font-medium">Email</label>
             <input
@@ -76,24 +77,34 @@ const LoginPage = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-3 py-2 rounded-md border border-border bg-background focus:ring-2 focus:ring-primary outline-none"
+              required
             />
           </div>
 
-          <div>
+          <div className="relative">
             <label className="text-sm font-medium">Password</label>
             <input
-              type="password"
+              type={showPass ? "text" : "password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 rounded-md border border-border bg-background focus:ring-2 focus:ring-primary outline-none"
+              className="w-full px-3 py-2 rounded-md border border-border bg-background focus:ring-2 focus:ring-primary outline-none pr-10"
+              required
             />
+            <button
+              type="button"
+              onClick={() => setShowPass((p) => !p)}
+              className="absolute right-3 top-9 text-muted-foreground"
+            >
+              {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-primary text-primary-foreground py-2 rounded-md font-medium disabled:opacity-50"
+            className="w-full flex justify-center items-center gap-2 bg-primary text-primary-foreground py-2 rounded-md font-medium disabled:opacity-50"
           >
+            {loading && <Loader2 className="animate-spin" size={18} />}
             {loading ? "Logging in..." : "Login"}
           </button>
         </form>
