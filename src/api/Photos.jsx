@@ -41,3 +41,8 @@ export const getEventPhotosApi = async (eventId) => {
 };
 
 export const deletePhotoApi = (photoId) => api.delete(`/photos/${photoId}`);
+
+export const bulkDeletePhotosApi = (photoIds) =>
+  api.delete("/photos/bulk", {
+    data: { photoIds },
+  });

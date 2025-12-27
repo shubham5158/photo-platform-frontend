@@ -6,6 +6,7 @@ import {
   uploadToS3,
   getEventPhotosApi,
   confirmUploadApi,
+  bulkDeletePhotosApi,
 } from "../../api/Photos.jsx";
 import { toastSuccess, toastError } from "../../utils/toast.jsx";
 import ImageGridSkeleton from "../../components/ui/ImageGridSkeleton.jsx";
@@ -15,6 +16,7 @@ import {
   Grid2X2,
   LayoutGrid,
   X,
+  Trash2,
 } from "lucide-react";
 
 const PhotosPage = () => {
@@ -25,11 +27,10 @@ const PhotosPage = () => {
   const [files, setFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [loadingPhotos, setLoadingPhotos] = useState(true);
-  const [preview, setPreview] = useState(null);
 
-  /* UI ONLY */
+  /* UI STATES */
   const [selected, setSelected] = useState([]);
-  const [gridCols, setGridCols] = useState(4); // 4 | 6
+  const [gridCols, setGridCols] = useState(4);
   const [showUpload, setShowUpload] = useState(false);
 
   const CLOUD_FRONT_URL = import.meta.env.VITE_CLOUD_FRONT_URL;
@@ -81,6 +82,34 @@ const PhotosPage = () => {
     }
   };
 
+  /* ================= BULK DELETE ================= */
+  const handleBulkDelete = async () => {
+    try {
+      await bulkDeletePhotosApi(selected);
+      toastSuccess("Photos deleted");
+      setSelected([]);
+      await load();
+    } catch {
+      toastError("Delete failed");
+    }
+  };
+
+  /* ================= DRAG (MODAL) ================= */
+  const handleModalDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleModalDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const dropped = Array.from(e.dataTransfer.files).filter((f) =>
+      f.type.startsWith("image/")
+    );
+    if (!dropped.length) return toastError("Only image files allowed");
+    setFiles(dropped);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* HEADER */}
@@ -91,7 +120,7 @@ const PhotosPage = () => {
               href="/admin"
               className="inline-flex items-center gap-2 text-sm text-muted-foreground mb-1"
             >
-              <ArrowLeft className="h-4 w-4" />
+              <ArrowLeft size={16} />
               Back
             </a>
 
@@ -109,49 +138,52 @@ const PhotosPage = () => {
             )}
           </div>
 
-          {/* UPLOAD BUTTON */}
-          <button
-            onClick={() => setShowUpload(true)}
-            className="flex items-center gap-2 px-5 py-2 rounded-md 
-                       bg-primary text-primary-foreground 
-                       hover:bg-black/80 transition"
-          >
-            <Upload size={18} />
-            Upload Photos
-          </button>
+          <div className="flex items-center gap-3">
+            {selected.length > 0 && (
+              <button
+                onClick={handleBulkDelete}
+                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded"
+              >
+                <Trash2 size={16} />
+                Delete {selected.length}
+              </button>
+            )}
+
+            <button
+              onClick={() => setShowUpload(true)}
+              className="flex items-center gap-2 px-5 py-2 rounded-md 
+                         bg-primary text-primary-foreground 
+                         hover:bg-black/80 transition"
+            >
+              <Upload size={18} />
+              Upload Photos
+            </button>
+          </div>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-6 py-8 space-y-6">
         {/* GRID OPTIONS */}
-        <div className="flex justify-between items-center">
-          <div className="flex gap-1">
-            <button
-              onClick={() => setGridCols(4)}
-              className={`p-2 rounded border ${
-                gridCols === 4 ? "bg-muted" : ""
-              }`}
-            >
-              <Grid2X2 size={18} />
-            </button>
-            <button
-              onClick={() => setGridCols(6)}
-              className={`p-2 rounded border ${
-                gridCols === 6 ? "bg-muted" : ""
-              }`}
-            >
-              <LayoutGrid size={18} />
-            </button>
-          </div>
-
-          {selected.length > 0 && (
-            <span className="text-sm text-muted-foreground">
-              {selected.length} selected
-            </span>
-          )}
+        <div className="flex gap-1">
+          <button
+            onClick={() => setGridCols(4)}
+            className={`p-2 rounded border ${
+              gridCols === 4 ? "bg-muted" : ""
+            }`}
+          >
+            <Grid2X2 size={18} />
+          </button>
+          <button
+            onClick={() => setGridCols(6)}
+            className={`p-2 rounded border ${
+              gridCols === 6 ? "bg-muted" : ""
+            }`}
+          >
+            <LayoutGrid size={18} />
+          </button>
         </div>
 
-        {/* PHOTOS GRID */}
+        {/* GRID */}
         <section className="bg-card border rounded-xl p-4">
           <div
             className={`grid gap-4 ${
@@ -168,9 +200,6 @@ const PhotosPage = () => {
                 return (
                   <div
                     key={p._id}
-                    className={`relative group rounded overflow-hidden border cursor-pointer ${
-                      isSelected && "ring-2 ring-primary"
-                    }`}
                     onClick={() =>
                       setSelected((s) =>
                         s.includes(p._id)
@@ -178,26 +207,21 @@ const PhotosPage = () => {
                           : [...s, p._id]
                       )
                     }
+                    className={`relative group cursor-pointer border rounded overflow-hidden ${
+                      isSelected && "ring-2 ring-primary"
+                    }`}
                   >
                     <img
                       src={`https://${CLOUD_FRONT_URL}/${p.originalKey}`}
                       className="w-full h-32 object-cover"
-                      onClick={() =>
-                        setPreview(
-                          `https://${CLOUD_FRONT_URL}/${p.originalKey}`
-                        )
-                      }
                     />
 
-                    {/* HOVER OVERLAY */}
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition" />
 
-                    {/* EMPTY BOX (HOVER ONLY) */}
                     {!isSelected && (
-                      <div className="absolute top-2 left-2 w-4 h-4 border border-white bg-white/70 hidden group-hover:block" />
+                      <div className="absolute top-2 left-2 w-4 h-4 border bg-white/70 hidden group-hover:block" />
                     )}
 
-                    {/* CHECKED */}
                     {isSelected && (
                       <div className="absolute top-2 left-2 w-4 h-4 bg-primary text-white text-xs flex items-center justify-center">
                         ✓
@@ -214,7 +238,11 @@ const PhotosPage = () => {
       {/* UPLOAD MODAL */}
       {showUpload && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center">
-          <div className="bg-card w-full max-w-md rounded-xl p-6 relative">
+          <div
+            className="bg-card w-full max-w-md rounded-xl p-6 relative"
+            onDragOver={handleModalDragOver}
+            onDrop={handleModalDrop}
+          >
             <button
               onClick={() => setShowUpload(false)}
               className="absolute right-4 top-4"
@@ -265,19 +293,6 @@ const PhotosPage = () => {
               )}
             </form>
           </div>
-        </div>
-      )}
-
-      {/* PREVIEW */}
-      {preview && (
-        <div
-          className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center"
-          onClick={() => setPreview(null)}
-        >
-          <img
-            src={preview}
-            className="max-h-[90vh] max-w-[90vw] rounded"
-          />
         </div>
       )}
     </div>
