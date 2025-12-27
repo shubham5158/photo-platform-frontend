@@ -22,42 +22,55 @@ const HomePage = () => {
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* ================= NAVBAR ================= */}
-      <nav className="fixed top-0 inset-x-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Camera className="h-7 w-7 text-primary" />
-            <span className="font-bold text-lg">
-              Hemant Gogawale Photography
-            </span>
-          </div>
+      <nav className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-lg border-b border-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center gap-2">
+              <Camera className="h-7 w-7 text-primary" />
+              <span className="text-xl font-bold">
+                Hemant Gogawale Photography
+              </span>
+            </div>
 
-          <div className="hidden md:flex items-center gap-6">
-            <a
-              href="#portfolio"
-              onClick={(e) => scrollTo(e, "#portfolio")}
-              className="text-sm hover:text-primary"
-            >
-              Portfolio
-            </a>
-            <a
-              href="#services"
-              onClick={(e) => scrollTo(e, "#services")}
-              className="text-sm hover:text-primary"
-            >
-              Services
-            </a>
-            <Button variant="outline" size="sm" onClick={() => navigate("/admin/login")}>
-              Client Access
-            </Button>
-            <Button size="sm" onClick={() => navigate("/admin/login")}>
-              Admin
-            </Button>
+            <div className="hidden md:flex items-center gap-6">
+              <a
+                href="#portfolio"
+                onClick={(e) => scrollTo(e, "#portfolio")}
+                className="text-sm font-medium hover:text-primary transition-colors"
+              >
+                Portfolio
+              </a>
+              <a
+                href="#services"
+                onClick={(e) => scrollTo(e, "#services")}
+                className="text-sm font-medium hover:text-primary transition-colors"
+              >
+                Services
+              </a>
+              <a
+                href="#about"
+                onClick={(e) => scrollTo(e, "#services")}
+                className="text-sm font-medium hover:text-primary transition-colors"
+              >
+                About
+              </a>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate("/admin/login")}
+              >
+                Client Access
+              </Button>
+              <Button size="sm" onClick={() => navigate("/admin/login")}>
+                Admin
+              </Button>
+            </div>
           </div>
         </div>
       </nav>
 
       {/* ================= HERO ================= */}
-      <section className="pt-32 pb-20 px-4">
+      <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-8">
             <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
@@ -65,12 +78,12 @@ const HomePage = () => {
               Professional Sports Photography
             </span>
 
-            <h1 className="text-5xl lg:text-7xl font-bold">
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-balance">
               Capturing <span className="text-primary">Power</span> &{" "}
               <span className="text-primary">Passion</span>
             </h1>
 
-            <p className="text-lg text-muted-foreground max-w-xl">
+            <p className="text-xl text-muted-foreground text-pretty leading-relaxed">
               Elite bodybuilding and fitness photography that captures strength,
               dedication, and victory — frame by frame.
             </p>
