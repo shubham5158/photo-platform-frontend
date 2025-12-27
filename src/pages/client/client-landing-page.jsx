@@ -9,11 +9,26 @@ import {
   Mail,
 } from "lucide-react";
 import Button from "../../components/ui/Button.jsx";
+import { useNavigate } from "react-router-dom";
+import { toastError } from "../../utils/toast.jsx";
 
 const HomePage = () => {
+  const navigate = useNavigate();
   const scrollTo = (e, id) => {
     e.preventDefault();
     document.querySelector(id)?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const openGallery = () => {
+    const code = prompt("Enter your gallery code");
+    const galleryCode = code?.trim();
+
+    if (!galleryCode) {
+      toastError("Please enter your gallery code");
+      return;
+    }
+
+    navigate(`/g/${galleryCode}`);
   };
 
   return (
@@ -23,7 +38,9 @@ const HomePage = () => {
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Camera className="h-7 w-7 text-primary" />
-            <span className="font-bold text-lg">Hemant Gogawale Photography</span>
+            <span className="font-bold text-lg">
+              Hemant Gogawale Photography
+            </span>
           </div>
 
           <div className="hidden md:flex items-center gap-6">
@@ -41,7 +58,7 @@ const HomePage = () => {
             >
               Services
             </a>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={openGallery}>
               Client Access
             </Button>
             <Button size="sm">Admin</Button>
@@ -69,7 +86,7 @@ const HomePage = () => {
             </p>
 
             <div className="flex gap-4 flex-wrap">
-              <Button size="lg" className="gap-2">
+              <Button size="lg" className="gap-2" onClick={openGallery}>
                 View Gallery <ArrowRight className="h-4 w-4" />
               </Button>
               <Button size="lg" variant="outline">
@@ -92,9 +109,9 @@ const HomePage = () => {
           </div>
 
           <div className="relative">
-            <div className="aspect-[4/5] rounded-2xl overflow-hidden bg-muted">
+            <div className="aspect-4/5 rounded-2xl overflow-hidden bg-muted">
               <img
-                src="https://images.unsplash.com/photo-1754475205146-23ca0cd6e73f?q=80&w=627&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                src="https://images.unsplash.com/photo-1754475205146-23ca0cd6e73f?q=80&w=627&auto=format&fit=crop"
                 alt="Photography"
                 className="w-full h-full object-cover"
               />
@@ -116,7 +133,9 @@ const HomePage = () => {
       {/* ================= SERVICES ================= */}
       <section id="services" className="py-20 bg-muted/30 px-4">
         <div className="max-w-7xl mx-auto text-center">
-          <h2 className="text-4xl font-bold mb-4">Why Choose IronLens?</h2>
+          <h2 className="text-4xl font-bold mb-4">
+            Why Choose Hemant Gogawale Photography?
+          </h2>
           <p className="text-muted-foreground mb-12">
             Built specifically for bodybuilding & fitness events
           </p>
@@ -197,14 +216,14 @@ const HomePage = () => {
             ].map((item, index) => (
               <div
                 key={index}
-                className="group relative aspect-[3/4] rounded-xl overflow-hidden"
+                className="group relative aspect-3/4 rounded-xl overflow-hidden"
               >
                 <img
                   src={item.image}
                   alt={item.title}
                   className="w-full h-full object-cover group-hover:scale-110 transition"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition" />
+                <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition" />
                 <div className="absolute bottom-0 p-6 text-white translate-y-4 group-hover:translate-y-0 transition">
                   <h3 className="text-xl font-bold">{item.title}</h3>
                   <p className="text-sm text-white/80">{item.count}</p>
