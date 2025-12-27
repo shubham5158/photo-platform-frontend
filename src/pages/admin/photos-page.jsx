@@ -8,10 +8,16 @@ import {
   uploadToS3,
   getEventPhotosApi,
   confirmUploadApi,
-  deletePhotoApi, // 👈 make sure this exists
+  deletePhotoApi,
 } from "../../api/Photos.jsx";
 import { toastSuccess, toastError } from "../../utils/toast.jsx";
 import ImageGridSkeleton from "../../components/ui/ImageGridSkeleton.jsx";
+import {
+  Upload,
+  Trash2,
+  ArrowLeft,
+  Image as ImageIcon,
+} from "lucide-react";
 
 const PhotosPage = () => {
   const { eventId } = useParams();
@@ -117,8 +123,7 @@ const PhotosPage = () => {
       toastSuccess("Photos uploaded successfully");
       setFiles([]);
       await load();
-    } catch (err) {
-      console.error(err);
+    } catch {
       toastError("Upload failed");
     } finally {
       setUploading(false);
@@ -126,7 +131,7 @@ const PhotosPage = () => {
   };
 
   /* =====================================================
-     DELETE PHOTO
+     DELETE
   ===================================================== */
   const handleDelete = async (photoId) => {
     try {
@@ -145,8 +150,8 @@ const PhotosPage = () => {
      UI
   ===================================================== */
   return (
-    <div className="space-y-6 relative">
-      {/* TOP RIGHT LOADER */}
+    <div className="min-h-screen bg-background">
+      {/* LOADER */}
       {(uploading || deletingId) && (
         <div className="fixed top-4 right-4 z-50 bg-black/80 text-white px-4 py-2 rounded-lg flex items-center gap-2">
           <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -157,119 +162,125 @@ const PhotosPage = () => {
       )}
 
       {/* HEADER */}
-      <header>
-        <h1 className="text-2xl font-semibold">Manage Photos</h1>
-        {event && (
-          <p className="text-sm text-slate-600">
-            {event.name} • Gallery{" "}
-            <span className="font-mono bg-slate-100 px-2 py-0.5 rounded">
-              {event.galleryCode}
-            </span>
-          </p>
-        )}
+      <header className="border-b bg-card sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <a href="/admin" className="inline-flex items-center gap-2 text-sm mb-2">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Dashboard
+          </a>
+
+          <h1 className="text-2xl font-bold">Manage Photos</h1>
+          {event && (
+            <p className="text-sm text-muted-foreground">
+              {event.name} • Gallery{" "}
+              <span className="font-mono bg-muted px-2 py-0.5 rounded">
+                {event.galleryCode}
+              </span>
+            </p>
+          )}
+        </div>
       </header>
 
       {/* UPLOAD ZONE */}
-      <section
-        onDragOver={handleDragOver}
-        onDragLeave={() => setDragActive(false)}
-        onDrop={handleDrop}
-        className={`border-2 border-dashed rounded-xl p-8 transition cursor-pointer ${
-          dragActive
-            ? "border-slate-900 bg-slate-50"
-            : "border-slate-300 bg-white"
-        }`}
-      >
-        <form onSubmit={handleUpload} className="flex flex-col items-center gap-3">
-          <input
-            type="file"
-            multiple
-            accept="image/*"
-            disabled={uploading}
-            onChange={(e) =>
-              setFiles(Array.from(e.target.files || []))
-            }
-            className="hidden"
-            id="fileInput"
-          />
+      <main className="max-w-7xl mx-auto px-6 py-8 space-y-8">
+        <section
+          onDragOver={handleDragOver}
+          onDragLeave={() => setDragActive(false)}
+          onDrop={handleDrop}
+          className={`border-2 border-dashed rounded-xl p-12 text-center transition ${
+            dragActive
+              ? "border-primary bg-muted"
+              : "border-border bg-card"
+          }`}
+        >
+          <form onSubmit={handleUpload} className="space-y-4">
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={(e) =>
+                setFiles(Array.from(e.target.files || []))
+              }
+              className="hidden"
+              id="photo-upload"
+            />
 
-          <label
-            htmlFor="fileInput"
-            className="text-center cursor-pointer"
-          >
-            <p className="font-medium">
-              Drag & drop images here
-            </p>
-            <p className="text-sm text-slate-500">
-              or click to browse
-            </p>
-          </label>
+            <label htmlFor="photo-upload" className="cursor-pointer block">
+              <Upload className="h-10 w-10 mx-auto mb-2 text-muted-foreground" />
+              <p className="font-medium">
+                Click to upload or drag & drop
+              </p>
+              <p className="text-sm text-muted-foreground">
+                JPG / PNG images only
+              </p>
+            </label>
 
-          {files.length > 0 && (
-            <button
-              type="submit"
-              disabled={uploading}
-              className="mt-2 px-5 py-2 bg-slate-900 text-white rounded"
-            >
-              Upload {files.length} photo{files.length > 1 && "s"}
-            </button>
-          )}
-        </form>
-      </section>
+            {files.length > 0 && (
+              <button
+                type="submit"
+                disabled={uploading}
+                className="px-6 py-2 bg-primary text-primary-foreground rounded"
+              >
+                Upload {files.length} photo{files.length > 1 && "s"}
+              </button>
+            )}
+          </form>
+        </section>
 
-      {/* PHOTO GRID */}
-      <section className="bg-white border rounded-xl p-4">
-        <h2 className="text-lg font-medium mb-4">
-          Photos ({photos.length})
-        </h2>
+        {/* PHOTO GRID */}
+        <section className="bg-card border rounded-xl p-4">
+          <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            <ImageIcon className="h-5 w-5" />
+            Photos ({photos.length})
+          </h2>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {loadingPhotos ? (
-            <ImageGridSkeleton count={8} />
-          ) : photos.length ? (
-            photos.map((p) => (
-              <div key={p._id} className="relative group">
-                <img
-                  src={`https://${CLOUD_FRONT_URL}/${p.originalKey}`}
-                  className="w-full h-40 object-cover rounded cursor-pointer"
-                  onClick={() =>
-                    setPreview(
-                      `https://${CLOUD_FRONT_URL}/${p.originalKey}`
-                    )
-                  }
-                />
-
-                {/* OVERLAY */}
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-3">
-                  <button
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {loadingPhotos ? (
+              <ImageGridSkeleton count={8} />
+            ) : photos.length ? (
+              photos.map((p) => (
+                <div key={p._id} className="relative group rounded-lg overflow-hidden">
+                  <img
+                    src={`https://${CLOUD_FRONT_URL}/${p.originalKey}`}
+                    className="w-full h-40 object-cover cursor-pointer"
                     onClick={() =>
                       setPreview(
                         `https://${CLOUD_FRONT_URL}/${p.originalKey}`
                       )
                     }
-                    className="px-3 py-1 text-xs bg-white rounded"
-                  >
-                    View
-                  </button>
+                  />
 
-                  <button
-                    onClick={() => handleDelete(p._id)}
-                    className="px-3 py-1 text-xs bg-red-600 text-white rounded"
-                  >
-                    Delete
-                  </button>
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-3">
+                    <button
+                      onClick={() =>
+                        setPreview(
+                          `https://${CLOUD_FRONT_URL}/${p.originalKey}`
+                        )
+                      }
+                      className="px-3 py-1 bg-white text-xs rounded"
+                    >
+                      View
+                    </button>
+
+                    <button
+                      onClick={() => handleDelete(p._id)}
+                      className="px-3 py-1 bg-red-600 text-white text-xs rounded"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))
-          ) : (
-            <p className="text-sm text-slate-500">
-              No photos uploaded yet.
-            </p>
-          )}
-        </div>
-      </section>
+              ))
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                No photos uploaded yet.
+              </p>
+            )}
+          </div>
+        </section>
+      </main>
 
-      {/* FULLSCREEN PREVIEW */}
+      {/* PREVIEW */}
       {preview && (
         <div
           className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center"
