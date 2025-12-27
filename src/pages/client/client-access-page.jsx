@@ -13,7 +13,7 @@ const ClientAccessPage = () => {
   const handleAccessCodeSubmit = async (e) => {
     e.preventDefault();
 
-    const code = accessCode.trim();
+    const code = accessCode.trim().toLowerCase();
     if (!code) {
       toastError("Please enter your access code");
       return;
@@ -22,7 +22,6 @@ const ClientAccessPage = () => {
     try {
       setLoading(true);
 
-      // 🔥 VERIFY CODE WITH BACKEND
       const res = await fetch(`${API_BASE_URL}/gallery/${code}`);
 
       if (!res.ok) {
@@ -31,10 +30,9 @@ const ClientAccessPage = () => {
         } else {
           toastError("Unable to verify access code");
         }
-        return; // ❌ DO NOT NAVIGATE
+        return;
       }
 
-      // ✅ VALID CODE → ALLOW ACCESS
       navigate(`/g/${code}`);
     } catch (err) {
       toastError("Network error. Please try again.");
@@ -70,7 +68,9 @@ const ClientAccessPage = () => {
               id="access-code"
               placeholder="e.g., da322f70"
               value={accessCode}
-              onChange={(e) => setAccessCode(e.target.value.toLowerCase())}
+              onChange={(e) =>
+                setAccessCode(e.target.value.toLowerCase())
+              }
               className="w-full text-center text-lg font-mono px-3 py-2 rounded-md border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
             />
 
@@ -96,7 +96,7 @@ const ClientAccessPage = () => {
 
           {/* 👉 CLIENT LOGIN */}
           <Link
-            to="/login"
+            to="/login?role=client"
             className="inline-flex items-center justify-center w-full text-sm font-medium text-primary hover:underline"
           >
             Login as Client

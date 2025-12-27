@@ -1,131 +1,102 @@
-import React, { useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/auth-context.jsx";
-import { toastError, toastSuccess } from "../../utils/toast.jsx";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import React, { useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { toastError } from "../../utils/toast.jsx";
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const LoginPage = () => {
-  const { login } = useAuth();
-  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const role = searchParams.get("role") || "admin";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = useCallback(
-    async (e) => {
-      e.preventDefault();
-      if (loading) return;
+  const navigate = useNavigate();
 
-      try {
-        setLoading(true);
+  const handleLogin = async (e) => {
+    e.preventDefault();
 
-        // 🔐 login
-        const loggedInUser = await login(email, password);
+    if (!email || !password) {
+      toastError("Email and password required");
+      return;
+    }
 
-        toastSuccess("Login successful!");
+    try {
+      setLoading(true);
 
-        if (loggedInUser.role === "ADMIN") {
-          navigate("/admin");
-        } else if (loggedInUser.role === "CLIENT" && loggedInUser.galleryCode) {
-          navigate(`/g/${loggedInUser.galleryCode}`);
-        } else {
-          // fallback
-          navigate("/");
-        }
-      } catch (err) {
-        toastError(err?.response?.data?.message || "Login failed");
-      } finally {
-        setLoading(false);
+      const res = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        toastError(data.message || "Login failed");
+        return;
       }
-    },
-    [email, password, login, navigate, loading]
-  );
+
+      const { user, token } = data;
+      localStorage.setItem("token", token);
+
+      // 🔥 ROLE BASED REDIRECT
+      if (user.role === "CLIENT" && user.galleryCode) {
+        navigate(`/g/${user.galleryCode}`);
+        return;
+      }
+
+      navigate("/admin");
+    } catch (err) {
+      toastError("Login error");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="h-screen flex">
-      {/* LEFT */}
-      <div
-        className="hidden lg:flex w-1/2 justify-around items-center bg-cover bg-center"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgba(0,0,0,.7),rgba(0,0,0,.7)),url(https://images.unsplash.com/photo-1650825556125-060e52d40bd0)",
-        }}
-      >
-        <div className="w-full px-20 space-y-6">
-          <h1 className="text-white font-bold text-4xl">
-            Hemant Gogawale Photostudio
-          </h1>
-          <p className="text-white">
-            Manage events, galleries & clients securely
-          </p>
-        </div>
-      </div>
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="max-w-md w-full bg-card border border-border rounded-xl shadow-lg p-6">
+        <h1 className="text-2xl font-bold mb-2 text-center">
+          {role === "client" ? "Client Login" : "Admin Login"}
+        </h1>
 
-      {/* RIGHT */}
-      <div className="flex w-full lg:w-1/2 justify-center items-center bg-white">
-        <div className="w-full px-8 md:px-32 lg:px-24">
-          <form
-            onSubmit={handleSubmit}
-            className="bg-white rounded-md shadow-2xl p-6"
-          >
-            <h1 className="text-gray-800 font-bold text-2xl mb-1">
-              Admin Login
-            </h1>
-            <p className="text-sm text-gray-600 mb-8">Secure Login</p>
+        <p className="text-muted-foreground text-center mb-6">
+          {role === "client"
+            ? "Login using the credentials sent to your email"
+            : "Login to manage events, photos, and orders"}
+        </p>
 
+        <form onSubmit={handleLogin} className="space-y-4">
+          <div>
+            <label className="text-sm font-medium">Email</label>
             <input
-              className="border mb-4 px-3 py-2 rounded-2xl w-full"
               type="email"
-              placeholder="Email Address"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              required
+              className="w-full px-3 py-2 rounded-md border border-border bg-background focus:ring-2 focus:ring-primary outline-none"
             />
+          </div>
 
-            <div className="relative border mb-6 px-3 py-2 rounded-2xl">
-              <input
-                className="w-full outline-none"
-                type={showPass ? "text" : "password"}
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowPass((p) => !p)}
-                className="absolute right-3 top-2.5 text-gray-500"
-              >
-                {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
-            </div>
+          <div>
+            <label className="text-sm font-medium">Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-3 py-2 rounded-md border border-border bg-background focus:ring-2 focus:ring-primary outline-none"
+            />
+          </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className={`w-full flex justify-center items-center gap-2 py-2 rounded-2xl text-white font-semibold transition-all ${
-                loading
-                  ? "bg-indigo-400 cursor-not-allowed"
-                  : "bg-indigo-600 hover:bg-indigo-700"
-              }`}
-            >
-              {loading && <Loader2 className="animate-spin" size={18} />}
-              {loading ? "Logging in..." : "Login"}
-            </button>
-
-            <p className="text-sm mt-4 text-center text-gray-500">
-              Don’t have an account?{" "}
-              <span
-                onClick={() => navigate("/register")}
-                className="text-indigo-600 cursor-pointer font-semibold"
-              >
-                Create one
-              </span>
-            </p>
-          </form>
-        </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-primary text-primary-foreground py-2 rounded-md font-medium disabled:opacity-50"
+          >
+            {loading ? "Logging in..." : "Login"}
+          </button>
+        </form>
       </div>
     </div>
   );
