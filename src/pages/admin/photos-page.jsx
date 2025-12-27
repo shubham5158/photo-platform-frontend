@@ -6,15 +6,14 @@ import {
   uploadToS3,
   getEventPhotosApi,
   confirmUploadApi,
-  deletePhotoApi,
 } from "../../api/Photos.jsx";
 import { toastSuccess, toastError } from "../../utils/toast.jsx";
 import ImageGridSkeleton from "../../components/ui/ImageGridSkeleton.jsx";
 import {
   Upload,
-  Trash2,
   ArrowLeft,
-  CheckSquare,
+  Grid2X2,
+  LayoutGrid,
   X,
 } from "lucide-react";
 
@@ -25,9 +24,8 @@ const PhotosPage = () => {
   const [photos, setPhotos] = useState([]);
   const [files, setFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
-  const [preview, setPreview] = useState(null);
   const [loadingPhotos, setLoadingPhotos] = useState(true);
-  const [dragActive, setDragActive] = useState(false);
+  const [preview, setPreview] = useState(null);
 
   /* UI ONLY */
   const [selected, setSelected] = useState([]);
@@ -100,6 +98,7 @@ const PhotosPage = () => {
             <h1 className="text-3xl font-extrabold uppercase">
               {event?.name}
             </h1>
+
             {event && (
               <p className="text-xs text-muted-foreground">
                 {new Date(event.date).toLocaleDateString()} •{" "}
@@ -113,8 +112,11 @@ const PhotosPage = () => {
           {/* UPLOAD BUTTON */}
           <button
             onClick={() => setShowUpload(true)}
-            className="relative px-5 py-2 rounded-md bg-primary text-primary-foreground hover:bg-black/80 transition"
+            className="flex items-center gap-2 px-5 py-2 rounded-md 
+                       bg-primary text-primary-foreground 
+                       hover:bg-black/80 transition"
           >
+            <Upload size={18} />
             Upload Photos
           </button>
         </div>
@@ -123,22 +125,22 @@ const PhotosPage = () => {
       <main className="max-w-7xl mx-auto px-6 py-8 space-y-6">
         {/* GRID OPTIONS */}
         <div className="flex justify-between items-center">
-          <div className="flex gap-2">
+          <div className="flex gap-1">
             <button
               onClick={() => setGridCols(4)}
-              className={`px-3 py-1 rounded border ${
-                gridCols === 4 && "bg-muted"
+              className={`p-2 rounded border ${
+                gridCols === 4 ? "bg-muted" : ""
               }`}
             >
-              4 Grid
+              <Grid2X2 size={18} />
             </button>
             <button
               onClick={() => setGridCols(6)}
-              className={`px-3 py-1 rounded border ${
-                gridCols === 6 && "bg-muted"
+              className={`p-2 rounded border ${
+                gridCols === 6 ? "bg-muted" : ""
               }`}
             >
-              6 Grid
+              <LayoutGrid size={18} />
             </button>
           </div>
 
@@ -180,22 +182,27 @@ const PhotosPage = () => {
                     <img
                       src={`https://${CLOUD_FRONT_URL}/${p.originalKey}`}
                       className="w-full h-32 object-cover"
+                      onClick={() =>
+                        setPreview(
+                          `https://${CLOUD_FRONT_URL}/${p.originalKey}`
+                        )
+                      }
                     />
 
-                    {/* DARK HOVER */}
+                    {/* HOVER OVERLAY */}
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition" />
 
-                    {/* CHECKBOX */}
-                    <div className="absolute top-2 left-2 bg-white rounded p-1 shadow">
-                      <CheckSquare
-                        size={16}
-                        className={
-                          isSelected
-                            ? "text-primary"
-                            : "text-muted-foreground"
-                        }
-                      />
-                    </div>
+                    {/* EMPTY BOX (HOVER ONLY) */}
+                    {!isSelected && (
+                      <div className="absolute top-2 left-2 w-4 h-4 border border-white bg-white/70 hidden group-hover:block" />
+                    )}
+
+                    {/* CHECKED */}
+                    {isSelected && (
+                      <div className="absolute top-2 left-2 w-4 h-4 bg-primary text-white text-xs flex items-center justify-center">
+                        ✓
+                      </div>
+                    )}
                   </div>
                 );
               })
@@ -217,28 +224,60 @@ const PhotosPage = () => {
 
             <h2 className="text-xl font-bold mb-1">Upload Photos</h2>
             <p className="text-sm text-muted-foreground mb-4">
-              Upload photos for event
+              Upload photos from {event?.name}
             </p>
 
             <form onSubmit={handleUpload} className="space-y-4">
+              <label
+                htmlFor="upload"
+                className="flex flex-col items-center justify-center gap-2 
+                           border-2 border-dashed rounded-lg p-6 cursor-pointer
+                           hover:bg-black/5"
+              >
+                <Upload />
+                <span className="font-medium">
+                  Click to upload or drag and drop
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  JPG, PNG images only
+                </span>
+              </label>
+
               <input
+                id="upload"
                 type="file"
                 multiple
                 accept="image/*"
                 onChange={(e) =>
                   setFiles(Array.from(e.target.files || []))
                 }
+                className="hidden"
               />
 
-              <button
-                type="submit"
-                disabled={uploading}
-                className="w-full py-2 bg-primary text-primary-foreground rounded"
-              >
-                {uploading ? "Uploading..." : "Upload Photos"}
-              </button>
+              {files.length > 0 && (
+                <button
+                  type="submit"
+                  disabled={uploading}
+                  className="w-full py-2 bg-primary text-primary-foreground rounded"
+                >
+                  {uploading ? "Uploading..." : "Upload Photos"}
+                </button>
+              )}
             </form>
           </div>
+        </div>
+      )}
+
+      {/* PREVIEW */}
+      {preview && (
+        <div
+          className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center"
+          onClick={() => setPreview(null)}
+        >
+          <img
+            src={preview}
+            className="max-h-[90vh] max-w-[90vw] rounded"
+          />
         </div>
       )}
     </div>
