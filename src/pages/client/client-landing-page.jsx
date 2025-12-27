@@ -27,7 +27,11 @@ const HomePage = () => {
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-2">
               {/* <Camera className="h-7 w-7 text-primary" /> */}
-              <img src="logo.jpg" alt="logo" />
+              <img
+                src="/logo.jpg"
+                alt="Hemant Gogawale Photography"
+                className="h-8 w-auto"
+              />
               <span className="text-xl font-bold">
                 Hemant Gogawale Photography
               </span>
@@ -300,7 +304,15 @@ const HomePage = () => {
         <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-8">
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <Camera className="h-6 w-6 text-primary" />
+              <div className="flex items-center gap-2 mb-3">
+                <img
+                  src="/logo.jpg"
+                  alt="Hemant Gogawale Photography"
+                  className="h-7 w-auto"
+                />
+                <span className="font-bold">Hemant Gogawale Photography</span>
+              </div>
+
               <span className="font-bold">Hemant Gogawale Photography</span>
             </div>
             <p className="text-sm text-muted-foreground">

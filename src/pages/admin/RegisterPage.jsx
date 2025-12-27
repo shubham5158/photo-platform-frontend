@@ -47,7 +47,14 @@ const RegisterPage = () => {
         {/* HEADER */}
         <div className="text-center mb-6">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4">
-            <Camera className="h-8 w-8 text-primary" />
+            <div className="flex items-center gap-2 mb-3">
+              <img
+                src="/logo.jpg"
+                alt="Hemant Gogawale Photography"
+                className="h-7 w-auto"
+              />
+              <span className="font-bold">Hemant Gogawale Photography</span>
+            </div>
           </div>
 
           <h1 className="text-2xl font-bold mb-1">Create Admin Account</h1>

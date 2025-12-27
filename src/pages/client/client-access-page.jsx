@@ -47,7 +47,14 @@ const ClientAccessPage = () => {
         {/* HEADER */}
         <div className="text-center mb-6">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4">
-            <Camera className="h-8 w-8 text-primary" />
+            <div className="flex items-center gap-2 mb-3">
+              <img
+                src="/logo.jpg"
+                alt="Hemant Gogawale Photography"
+                className="h-7 w-auto"
+              />
+              <span className="font-bold">Hemant Gogawale Photography</span>
+            </div>
           </div>
 
           <h1 className="text-2xl font-bold mb-2">Access Your Gallery</h1>
@@ -68,9 +75,7 @@ const ClientAccessPage = () => {
               id="access-code"
               placeholder="e.g., da322f70"
               value={accessCode}
-              onChange={(e) =>
-                setAccessCode(e.target.value.toLowerCase())
-              }
+              onChange={(e) => setAccessCode(e.target.value.toLowerCase())}
               className="w-full text-center text-lg font-mono px-3 py-2 rounded-md border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
             />
 
