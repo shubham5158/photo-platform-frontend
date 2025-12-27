@@ -29,6 +29,11 @@ const ClientDownloadPage = lazy(() =>
   import("./pages/client/client-download-page.jsx")
 );
 
+const ClientAccessPage = lazy(() =>
+  import("./pages/client/client-access-page.jsx")
+);
+
+
 const App = () => {
   const { loading } = useAuth();
 
@@ -41,6 +46,7 @@ const App = () => {
     <Suspense fallback={<GlobalSkeleton />}>
       <Routes>
         <Route path="/" element={<ClientLandingPage />} />
+        <Route path="/client-access" element={<ClientAccessPage />} />
 
         <Route path="/admin/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
