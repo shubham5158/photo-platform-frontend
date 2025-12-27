@@ -7,6 +7,7 @@ import {
   getEventPhotosApi,
   confirmUploadApi,
   bulkDeletePhotosApi,
+  deletePhotoApi
 } from "../../api/Photos.jsx";
 import { toastSuccess, toastError } from "../../utils/toast.jsx";
 import ImageGridSkeleton from "../../components/ui/ImageGridSkeleton.jsx";
