@@ -28,7 +28,7 @@ const HomePage = () => {
             <div className="flex items-center gap-2">
               {/* <Camera className="h-7 w-7 text-primary" /> */}
               <img
-                src="/logo.jpg"
+                src="/logo.png"
                 alt="Hemant Gogawale Photography"
                 className="h-8 w-auto"
               />
@@ -306,7 +306,7 @@ const HomePage = () => {
             <div className="flex items-center gap-2 mb-3">
               <div className="flex items-center gap-2 mb-3">
                 <img
-                  src="/logo.jpg"
+                  src="/logo.png"
                   alt="Hemant Gogawale Photography"
                   className="h-7 w-auto"
                 />

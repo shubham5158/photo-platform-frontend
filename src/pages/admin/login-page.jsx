@@ -56,7 +56,7 @@ const LoginPage = () => {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4">
             <div className="flex items-center gap-2 mb-3">
               <img
-                src="/logo.jpg"
+                src="/logo.png"
                 alt="Hemant Gogawale Photography"
                 className="h-7 w-auto"
               />
