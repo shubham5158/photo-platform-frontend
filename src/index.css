@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import "tw-animate-css";
 
 body {
   @apply bg-slate-100 text-slate-900;
