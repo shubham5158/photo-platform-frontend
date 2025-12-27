@@ -1,29 +1,47 @@
 import React from "react";
+import clsx from "clsx";
 
-const PillButton = ({
+const Button = ({
   children,
-  variant = "client",
-  onClick,
+  variant = "primary", // primary | outline | ghost
+  size = "md", // sm | md | lg
+  loading = false,
+  disabled = false,
   className = "",
+  onClick,
+  type = "button",
 }) => {
   const base =
-    "px-6 py-2 rounded-full text-sm font-medium transition-colors duration-200";
+    "inline-flex items-center justify-center gap-2 font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50";
 
-  const styles = {
-    client:
-      "bg-white text-black border border-gray-300 hover:bg-gray-100",
-    admin:
-      "bg-orange-500 text-white hover:bg-orange-600",
+  const variants = {
+    primary:
+      "bg-primary text-primary-foreground hover:bg-primary/90",
+    outline:
+      "border border-border bg-background hover:bg-muted hover:text-foreground",
+    ghost:
+      "bg-transparent hover:bg-muted",
+  };
+
+  const sizes = {
+    sm: "h-9 px-3 text-sm rounded-md",
+    md: "h-10 px-4 text-sm rounded-md",
+    lg: "h-11 px-8 text-base rounded-lg",
   };
 
   return (
     <button
+      type={type}
       onClick={onClick}
-      className={`${base} ${styles[variant]} ${className}`}
+      disabled={disabled || loading}
+      className={clsx(base, variants[variant], sizes[size], className)}
     >
+      {loading && (
+        <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+      )}
       {children}
     </button>
   );
 };
 
-export default PillButton;
+export default Button;
