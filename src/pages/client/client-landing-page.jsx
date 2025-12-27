@@ -57,7 +57,7 @@ const HomePage = () => {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => navigate("/admin/login")}
+                onClick={() => navigate("/client-access")}
               >
                 Client Access
               </Button>
