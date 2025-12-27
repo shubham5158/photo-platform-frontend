@@ -1,40 +1,38 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Camera, Zap, Shield, ArrowRight } from "lucide-react";
 import { toastError } from "../../utils/toast.jsx";
 import ClientLandingSkeleton from "../../components/ui/ClientLandingSkeleton.jsx";
 
 const portfolioImages = [
-  "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e",
-  "https://images.unsplash.com/photo-1517841905240-472988babdf9",
-  "https://images.unsplash.com/photo-1519681393784-d120267933ba",
-  "https://images.unsplash.com/photo-1521334884684-d80222895322",
   "https://images.unsplash.com/photo-1579758682665-53a1a614eea6",
+  "https://images.unsplash.com/photo-1521334884684-d80222895322",
+  "https://images.unsplash.com/photo-1519681393784-d120267933ba",
 ];
 
 const ClientLandingPage = () => {
   const navigate = useNavigate();
 
-  /* -------------------- STATE -------------------- */
+  /* ---------------- STATE ---------------- */
   const [galleryCode, setGalleryCode] = useState("");
   const [loading, setLoading] = useState(true);
   const [slide, setSlide] = useState(0);
 
-  /* -------------------- PAGE SKELETON -------------------- */
+  /* ---------------- SKELETON ---------------- */
   useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 900);
+    const t = setTimeout(() => setLoading(false), 800);
     return () => clearTimeout(t);
   }, []);
 
-  /* -------------------- AUTO SLIDER -------------------- */
+  /* ---------------- AUTO SLIDER ---------------- */
   useEffect(() => {
     const interval = setInterval(() => {
-      setSlide((prev) => (prev + 1) % portfolioImages.length);
-    }, 3000);
-
+      setSlide((s) => (s + 1) % portfolioImages.length);
+    }, 3500);
     return () => clearInterval(interval);
   }, []);
 
-  /* -------------------- HANDLERS -------------------- */
+  /* ---------------- HANDLER ---------------- */
   const handleSubmit = (e) => {
     e.preventDefault();
     const code = galleryCode.trim();
@@ -42,137 +40,126 @@ const ClientLandingPage = () => {
       toastError("Please enter your gallery code");
       return;
     }
-    navigate(`/g/${code}`);
+    navigate(`/g/${code}`); // 🔒 SAME LOGIC (unchanged)
   };
 
-  /* -------------------- SKELETON -------------------- */
-  if (loading) {
-    return <ClientLandingSkeleton />;
-  }
+  if (loading) return <ClientLandingSkeleton />;
 
-  /* -------------------- UI -------------------- */
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-50 overflow-hidden">
-      {/* ================= HEADER ================= */}
-      <header className="sticky top-0 z-50 backdrop-blur bg-black/40 border-b border-slate-800">
+    <div className="min-h-screen bg-[#0b0b0d] text-white overflow-hidden">
+      {/* ================= NAV ================= */}
+      <header className="fixed top-0 w-full z-50 bg-black/50 backdrop-blur border-b border-white/10">
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-          <h1 className="text-lg font-semibold tracking-wide">
-            Hemant Gogawale Studio
-          </h1>
-
-          <div className="flex gap-4 text-sm">
-            <button
-              onClick={() => navigate("/admin/login")}
-              className="text-amber-400 hover:underline"
-            >
-              Admin Login
-            </button>
-            <button
-              onClick={() => navigate("/register")}
-              className="text-slate-300 hover:underline"
-            >
-              Register
-            </button>
+          <div className="flex items-center gap-2">
+            <Camera className="text-amber-400" />
+            <span className="font-semibold tracking-wide">
+              Hemant Gogawale Studio
+            </span>
           </div>
+
+          <button
+            onClick={() => navigate("/admin/login")}
+            className="text-sm text-neutral-300 hover:text-amber-400 transition"
+          >
+            Admin Login
+          </button>
         </div>
       </header>
 
       {/* ================= HERO ================= */}
-      <section className="relative h-[75vh] flex items-center justify-center">
+      <section className="relative h-screen flex items-center justify-center pt-20">
         <img
           src={portfolioImages[slide]}
-          alt="Portfolio"
+          alt="Photography"
           className="absolute inset-0 w-full h-full object-cover opacity-40 transition-all duration-[2000ms]"
         />
 
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-slate-950/80 to-slate-950" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/70 to-[#0b0b0d]" />
 
-        <div className="relative z-10 max-w-3xl text-center px-6 animate-fadeInUp">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            Professional Sports & Wedding Photography
-          </h2>
+        <div className="relative z-10 max-w-4xl text-center px-6">
+          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-400/10 text-amber-400 text-sm mb-6">
+            <Zap size={16} />
+            Private Client Gallery
+          </span>
 
-          <p className="text-slate-300 mb-8">
-            Private client galleries • Secure downloads • Premium quality
+          <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-5">
+            Access Your <span className="text-amber-400">Event Photos</span>
+          </h1>
+
+          <p className="text-neutral-300 max-w-2xl mx-auto mb-10 text-lg">
+            Secure private galleries with watermark previews and instant
+            full-resolution downloads after confirmation.
           </p>
 
-          {/* CLIENT ACCESS */}
+          {/* ===== GALLERY CODE FORM (UNCHANGED LOGIC) ===== */}
           <form
             onSubmit={handleSubmit}
-            className="max-w-md mx-auto bg-slate-900/80 border border-slate-700 p-5 rounded-xl backdrop-blur"
+            className="max-w-md mx-auto bg-[#121215] border border-white/10 rounded-2xl p-6 shadow-xl"
           >
-            <label className="block text-left text-xs text-slate-400 mb-1">
+            <label className="block text-left text-xs text-neutral-400 mb-2">
               Client Gallery Code
             </label>
+
             <input
               value={galleryCode}
               onChange={(e) => setGalleryCode(e.target.value)}
               placeholder="Enter your gallery code"
-              className="w-full px-3 py-2 mb-3 rounded bg-slate-950 border border-slate-700 focus:ring-2 focus:ring-amber-400 outline-none"
+              className="w-full px-4 py-3 rounded-xl bg-black/40 border border-white/10 focus:ring-2 focus:ring-amber-400 outline-none mb-4"
             />
 
             <button
               type="submit"
-              className="w-full bg-amber-400 text-slate-900 font-semibold py-2 rounded hover:bg-amber-300 transition"
+              className="w-full flex items-center justify-center gap-2 bg-amber-400 text-black font-semibold py-3 rounded-xl hover:bg-amber-300 transition"
             >
-              Open My Gallery
+              Open My Gallery <ArrowRight size={18} />
             </button>
           </form>
         </div>
       </section>
 
-      {/* ================= FEATURED WORK ================= */}
-      <section className="max-w-6xl mx-auto px-6 py-20">
-        <h3 className="text-3xl font-bold text-center mb-10">
-          Featured Moments
-        </h3>
+      {/* ================= FEATURES ================= */}
+      <section className="max-w-6xl mx-auto px-6 py-24">
+        <h2 className="text-3xl md:text-4xl font-bold text-center mb-14">
+          Why Clients Love Us
+        </h2>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {portfolioImages.map((src, i) => (
-            <div
-              key={i}
-              className="relative overflow-hidden rounded-xl group"
-            >
-              <img
-                src={src}
-                alt=""
-                className="w-full h-64 object-cover transition-transform duration-700 group-hover:scale-110"
-              />
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition" />
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ================= TESTIMONIALS ================= */}
-      <section className="bg-slate-900 border-t border-slate-800 py-16">
-        <h3 className="text-2xl font-semibold text-center mb-10">
-          What Clients Say
-        </h3>
-
-        <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-6 px-6">
-          <div className="bg-slate-800/70 border border-slate-700 p-5 rounded-xl">
-            <p className="text-slate-300 text-sm">
-              “Super smooth experience. Photos were stunning and easy to download.”
-            </p>
-            <p className="mt-3 text-amber-300 text-sm">— Rohit & Anjali</p>
-          </div>
-
-          <div className="bg-slate-800/70 border border-slate-700 p-5 rounded-xl">
-            <p className="text-slate-300 text-sm">
-              “Professional work. Loved the private gallery system!”
-            </p>
-            <p className="mt-3 text-amber-300 text-sm">— Neha Sharma</p>
-          </div>
+        <div className="grid md:grid-cols-3 gap-8">
+          <Feature
+            icon={<Camera />}
+            title="Professional Quality"
+            desc="Captured using high-end equipment with cinematic lighting."
+          />
+          <Feature
+            icon={<Shield />}
+            title="Secure Access"
+            desc="Private galleries protected with unique event codes."
+          />
+          <Feature
+            icon={<Zap />}
+            title="Fast Delivery"
+            desc="Instant preview, quick checkout, and original downloads."
+          />
         </div>
       </section>
 
       {/* ================= FOOTER ================= */}
-      <footer className="text-center py-8 text-slate-500 text-xs">
-        © {new Date().getFullYear()} Hemant Gogawale Photography • All Rights Reserved
+      <footer className="border-t border-white/10 py-8 text-center text-sm text-neutral-500">
+        © {new Date().getFullYear()} Hemant Gogawale Photography. All rights
+        reserved.
       </footer>
     </div>
   );
 };
+
+/* ================= FEATURE CARD ================= */
+const Feature = ({ icon, title, desc }) => (
+  <div className="bg-[#121215] border border-white/10 rounded-2xl p-6 hover:border-amber-400/40 transition">
+    <div className="w-12 h-12 rounded-xl bg-amber-400/10 text-amber-400 flex items-center justify-center mb-4">
+      {icon}
+    </div>
+    <h3 className="text-lg font-semibold mb-2">{title}</h3>
+    <p className="text-sm text-neutral-400">{desc}</p>
+  </div>
+);
 
 export default ClientLandingPage;
