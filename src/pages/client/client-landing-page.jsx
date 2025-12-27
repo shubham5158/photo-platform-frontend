@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { toastError } from "../../utils/toast.jsx";
 import ClientLandingSkeleton from "../../components/ui/ClientLandingSkeleton.jsx";
 import { Camera, Zap, Shield, Award, ArrowRight, Instagram, Mail } from "lucide-react"
+import PillButton from "../../components/ui/Button.jsx";
 
 const portfolioImages = [
   "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e",
@@ -106,12 +107,12 @@ const ClientLandingPage = () => {
                 About
               </Link>
               <Link href="/admin/login">
-                <button variant="outline" size="sm">
+                <PillButton variant="outline" size="sm">
                   Client Access
-                </button>
+                </PillButton>
               </Link>
               <Link href="/admin/login">
-                <button size="sm">Admin</button>
+                <PillButton size="sm">Admin</PillButton>
               </Link>
             </div>
           </div>
