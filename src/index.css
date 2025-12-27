@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
 body {
   @apply bg-slate-100 text-slate-900;
@@ -285,5 +286,6 @@ dark {
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-sans);
   }
 }
