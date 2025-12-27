@@ -77,8 +77,7 @@ const ClientLandingPage = () => {
         </div>
       </header> */}
 
-      {/* Navigation */}
-      
+      {/*  */}
 
       {/* ================= HERO ================= */}
       <section className="relative h-[75vh] flex items-center justify-center">
