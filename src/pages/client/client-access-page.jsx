@@ -51,7 +51,7 @@ const ClientAccessPage = () => {
               <img
                 src="/logo.png"
                 alt="Hemant Gogawale Photography"
-                className="h-16 w-auto mb-1"
+                className="h-20 w-auto mb-1"
               />
             </div>
           </div>
