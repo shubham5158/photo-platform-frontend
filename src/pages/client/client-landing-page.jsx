@@ -26,7 +26,8 @@ const HomePage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-2">
-              <Camera className="h-7 w-7 text-primary" />
+              {/* <Camera className="h-7 w-7 text-primary" /> */}
+              <img src="logo.jpg" alt="logo" />
               <span className="text-xl font-bold">
                 Hemant Gogawale Photography
               </span>
