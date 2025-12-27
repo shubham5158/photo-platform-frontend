@@ -76,7 +76,7 @@ const HomePage = () => {
             </p>
 
             <div className="flex gap-4 flex-wrap">
-              <Button size="lg" className="gap-2" onClick={openGallery}>
+              <Button size="lg" className="gap-2">
                 View Gallery <ArrowRight className="h-4 w-4" />
               </Button>
               <Button size="lg" variant="outline">
