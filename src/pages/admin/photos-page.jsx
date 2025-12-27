@@ -124,7 +124,7 @@ const PhotosPage = () => {
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
           <div>
             <a
-              href="/admin"
+              href="/admin/events"
               className="inline-flex items-center gap-2 text-sm text-muted-foreground mb-1"
             >
               <ArrowLeft size={16} />
@@ -147,7 +147,7 @@ const PhotosPage = () => {
             {selected.length > 0 && (
               <button
                 onClick={handleDelete}
-                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded"
+                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-2xl"
               >
                 <Trash2 size={16} />
                 Delete {selected.length}
