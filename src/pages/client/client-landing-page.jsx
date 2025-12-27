@@ -106,12 +106,12 @@ const ClientLandingPage = () => {
                 About
               </Link>
               <Link href="/admin/login">
-                <Button variant="outline" size="sm">
+                <button variant="outline" size="sm">
                   Client Access
-                </Button>
+                </button>
               </Link>
               <Link href="/admin/login">
-                <Button size="sm">Admin</Button>
+                <button size="sm">Admin</button>
               </Link>
             </div>
           </div>
