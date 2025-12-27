@@ -17,6 +17,9 @@ import {
   Trash2,
   ArrowLeft,
   Image as ImageIcon,
+  LayoutGrid,
+  List,
+  CheckSquare,
 } from "lucide-react";
 
 const PhotosPage = () => {
@@ -31,29 +34,27 @@ const PhotosPage = () => {
   const [loadingPhotos, setLoadingPhotos] = useState(true);
   const [dragActive, setDragActive] = useState(false);
 
+  /* 🔥 UI STATES (NO API CHANGE) */
+  const [view, setView] = useState("grid"); // grid | compact
+  const [selected, setSelected] = useState([]);
+
   const CLOUD_FRONT_URL = import.meta.env.VITE_CLOUD_FRONT_URL;
 
-  /* =====================================================
-     🔥 CRITICAL: WINDOWS → CHROME DRAG FIX
-  ===================================================== */
+  /* ================= DRAG FIX ================= */
   useEffect(() => {
     const prevent = (e) => {
       e.preventDefault();
       e.stopPropagation();
     };
-
     window.addEventListener("dragover", prevent);
     window.addEventListener("drop", prevent);
-
     return () => {
       window.removeEventListener("dragover", prevent);
       window.removeEventListener("drop", prevent);
     };
   }, []);
 
-  /* =====================================================
-     LOAD EVENT + PHOTOS
-  ===================================================== */
+  /* ================= LOAD ================= */
   const load = useCallback(async () => {
     try {
       setLoadingPhotos(true);
@@ -61,6 +62,7 @@ const PhotosPage = () => {
       const p = await getEventPhotosApi(eventId);
       setEvent(e);
       setPhotos(p);
+      setSelected([]);
     } catch {
       toastError("Failed to load photos");
     } finally {
@@ -72,13 +74,10 @@ const PhotosPage = () => {
     load();
   }, [load]);
 
-  /* =====================================================
-     DRAG & DROP HANDLERS
-  ===================================================== */
+  /* ================= DRAG ================= */
   const handleDragOver = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    e.dataTransfer.dropEffect = "copy";
     setDragActive(true);
   };
 
@@ -86,28 +85,19 @@ const PhotosPage = () => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-
     const dropped = Array.from(e.dataTransfer.files).filter((f) =>
       f.type.startsWith("image/")
     );
-
-    if (!dropped.length) {
-      toastError("Only image files allowed");
-      return;
-    }
-
+    if (!dropped.length) return toastError("Only image files allowed");
     setFiles(dropped);
   };
 
-  /* =====================================================
-     UPLOAD
-  ===================================================== */
+  /* ================= UPLOAD ================= */
   const handleUpload = async (e) => {
     e.preventDefault();
-    if (!files.length) return toastError("Select at least one image");
+    if (!files.length) return toastError("Select images first");
 
     setUploading(true);
-
     try {
       for (const file of files) {
         const { uploadUrl, key } = await getUploadUrlApi({
@@ -115,12 +105,10 @@ const PhotosPage = () => {
           filename: file.name,
           contentType: file.type,
         });
-
         await uploadToS3(uploadUrl, file);
         await confirmUploadApi({ eventId, key });
       }
-
-      toastSuccess("Photos uploaded successfully");
+      toastSuccess("Photos uploaded");
       setFiles([]);
       await load();
     } catch {
@@ -130,9 +118,7 @@ const PhotosPage = () => {
     }
   };
 
-  /* =====================================================
-     DELETE
-  ===================================================== */
+  /* ================= DELETE ================= */
   const handleDelete = async (photoId) => {
     try {
       setDeletingId(photoId);
@@ -146,9 +132,14 @@ const PhotosPage = () => {
     }
   };
 
-  /* =====================================================
-     UI (DESIGN UPDATED ONLY)
-  ===================================================== */
+  /* ================= BULK DELETE ================= */
+  const handleBulkDelete = async () => {
+    for (const id of selected) {
+      await handleDelete(id);
+    }
+    setSelected([]);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* HEADER */}
@@ -156,13 +147,16 @@ const PhotosPage = () => {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <a href="/admin" className="inline-flex items-center gap-2 text-sm mb-2">
             <ArrowLeft className="h-4 w-4" />
-            Back to Dashboard
+            Back
           </a>
 
-          <h1 className="text-2xl font-bold">Manage Photos</h1>
+          <h1 className="text-3xl font-bold uppercase">
+            {event?.name}
+          </h1>
+
           {event && (
             <p className="text-sm text-muted-foreground">
-              {event.name} • Gallery{" "}
+              {new Date(event.date).toLocaleDateString()} • Gallery{" "}
               <span className="font-mono bg-muted px-2 py-0.5 rounded">
                 {event.galleryCode}
               </span>
@@ -171,19 +165,45 @@ const PhotosPage = () => {
         </div>
       </header>
 
-      {/* UPLOAD ZONE */}
       <main className="max-w-7xl mx-auto px-6 py-8 space-y-8">
+        {/* TOOLBAR */}
+        <div className="flex justify-between items-center">
+          <div className="flex gap-2">
+            <button
+              onClick={() => setView("grid")}
+              className={`p-2 rounded ${view === "grid" && "bg-muted"}`}
+            >
+              <LayoutGrid size={18} />
+            </button>
+            <button
+              onClick={() => setView("compact")}
+              className={`p-2 rounded ${view === "compact" && "bg-muted"}`}
+            >
+              <List size={18} />
+            </button>
+          </div>
+
+          {selected.length > 0 && (
+            <button
+              onClick={handleBulkDelete}
+              className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded"
+            >
+              <Trash2 size={16} />
+              Delete ({selected.length})
+            </button>
+          )}
+        </div>
+
+        {/* UPLOAD */}
         <section
           onDragOver={handleDragOver}
           onDragLeave={() => setDragActive(false)}
           onDrop={handleDrop}
-          className={`border-2 border-dashed rounded-xl p-12 text-center transition ${
-            dragActive
-              ? "border-primary bg-muted"
-              : "border-border bg-card"
+          className={`border-2 border-dashed rounded-xl p-8 text-center ${
+            dragActive ? "border-primary bg-muted" : "border-border bg-card"
           }`}
         >
-          <form onSubmit={handleUpload} className="space-y-4">
+          <form onSubmit={handleUpload}>
             <input
               type="file"
               multiple
@@ -192,47 +212,47 @@ const PhotosPage = () => {
                 setFiles(Array.from(e.target.files || []))
               }
               className="hidden"
-              id="photo-upload"
+              id="upload"
             />
-
-            <label htmlFor="photo-upload" className="cursor-pointer block">
-              <Upload className="h-10 w-10 mx-auto mb-2 text-muted-foreground" />
-              <p className="font-medium">
-                Click to upload or drag & drop
-              </p>
-              <p className="text-sm text-muted-foreground">
-                JPG / PNG images only
-              </p>
+            <label htmlFor="upload" className="cursor-pointer">
+              <Upload className="mx-auto mb-2" />
+              <p className="font-medium">Upload Photos</p>
             </label>
 
             {files.length > 0 && (
               <button
                 type="submit"
                 disabled={uploading}
-                className="px-6 py-2 bg-primary text-primary-foreground rounded"
+                className="mt-4 px-6 py-2 bg-primary text-primary-foreground rounded"
               >
-                Upload {files.length} photo{files.length > 1 && "s"}
+                Upload {files.length} Photos
               </button>
             )}
           </form>
         </section>
 
-        {/* PHOTO GRID */}
+        {/* GRID */}
         <section className="bg-card border rounded-xl p-4">
-          <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            <ImageIcon className="h-5 w-5" />
-            Photos ({photos.length})
-          </h2>
-
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div
+            className={`grid gap-4 ${
+              view === "grid"
+                ? "grid-cols-2 md:grid-cols-4"
+                : "grid-cols-1"
+            }`}
+          >
             {loadingPhotos ? (
               <ImageGridSkeleton count={8} />
-            ) : photos.length ? (
+            ) : (
               photos.map((p) => (
-                <div key={p._id} className="relative group rounded-lg overflow-hidden">
+                <div
+                  key={p._id}
+                  className="relative group rounded overflow-hidden border"
+                >
                   <img
                     src={`https://${CLOUD_FRONT_URL}/${p.originalKey}`}
-                    className="w-full h-40 object-cover cursor-pointer"
+                    className={`w-full ${
+                      view === "grid" ? "h-40" : "h-24"
+                    } object-cover`}
                     onClick={() =>
                       setPreview(
                         `https://${CLOUD_FRONT_URL}/${p.originalKey}`
@@ -240,31 +260,28 @@ const PhotosPage = () => {
                     }
                   />
 
-                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-3">
-                    <button
-                      onClick={() =>
-                        setPreview(
-                          `https://${CLOUD_FRONT_URL}/${p.originalKey}`
-                        )
+                  {/* SELECT */}
+                  <button
+                    onClick={() =>
+                      setSelected((s) =>
+                        s.includes(p._id)
+                          ? s.filter((id) => id !== p._id)
+                          : [...s, p._id]
+                      )
+                    }
+                    className="absolute top-2 left-2 bg-white rounded p-1"
+                  >
+                    <CheckSquare
+                      size={16}
+                      className={
+                        selected.includes(p._id)
+                          ? "text-primary"
+                          : "text-muted-foreground"
                       }
-                      className="px-3 py-1 bg-white text-xs rounded"
-                    >
-                      View
-                    </button>
-
-                    <button
-                      onClick={() => handleDelete(p._id)}
-                      className="px-3 py-1 bg-red-600 text-white text-xs rounded"
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </button>
-                  </div>
+                    />
+                  </button>
                 </div>
               ))
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                No photos uploaded yet.
-              </p>
             )}
           </div>
         </section>
@@ -278,7 +295,7 @@ const PhotosPage = () => {
         >
           <img
             src={preview}
-            className="max-h-[90vh] max-w-[90vw] rounded shadow-2xl"
+            className="max-h-[90vh] max-w-[90vw] rounded"
           />
         </div>
       )}
