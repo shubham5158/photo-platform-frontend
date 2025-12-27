@@ -23,7 +23,7 @@ const HomePage = () => {
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Camera className="h-7 w-7 text-primary" />
-            <span className="font-bold text-lg">IronLens Photography</span>
+            <span className="font-bold text-lg">Hemant Gogawale Photography</span>
           </div>
 
           <div className="hidden md:flex items-center gap-6">
@@ -94,7 +94,7 @@ const HomePage = () => {
           <div className="relative">
             <div className="aspect-[4/5] rounded-2xl overflow-hidden bg-muted">
               <img
-                src="https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=800"
+                src="https://images.unsplash.com/photo-1754475205146-23ca0cd6e73f?q=80&w=627&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                 alt="Photography"
                 className="w-full h-full object-cover"
               />
@@ -278,7 +278,7 @@ const HomePage = () => {
           <div>
             <div className="flex items-center gap-2 mb-3">
               <Camera className="h-6 w-6 text-primary" />
-              <span className="font-bold">IronLens</span>
+              <span className="font-bold">Hemant Gogawale Photography</span>
             </div>
             <p className="text-sm text-muted-foreground">
               Professional bodybuilding photography platform.
@@ -313,7 +313,7 @@ const HomePage = () => {
         </div>
 
         <p className="text-center text-sm text-muted-foreground mt-10">
-          © 2025 IronLens Photography
+          © 2025 Hemant gogawale Photography
         </p>
       </footer>
     </div>
