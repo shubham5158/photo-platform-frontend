@@ -147,20 +147,10 @@ const PhotosPage = () => {
   };
 
   /* =====================================================
-     UI
+     UI (DESIGN UPDATED ONLY)
   ===================================================== */
   return (
     <div className="min-h-screen bg-background">
-      {/* LOADER */}
-      {(uploading || deletingId) && (
-        <div className="fixed top-4 right-4 z-50 bg-black/80 text-white px-4 py-2 rounded-lg flex items-center gap-2">
-          <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-          <span className="text-sm">
-            {uploading ? "Uploading..." : "Deleting..."}
-          </span>
-        </div>
-      )}
-
       {/* HEADER */}
       <header className="border-b bg-card sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-6 py-4">
