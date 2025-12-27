@@ -6,12 +6,12 @@ body {
 
 input,
 button {
-  font-family: inherit;
+  font-family: "Geist", system-ui, sans-serif;
 }
 
 /* Toast style overrides */
 .react-hot-toast {
-  font-family: inherit;
+  font-family: "Geist", system-ui, sans-serif;
 }
 
 .react-hot-toast-success {
@@ -43,7 +43,7 @@ body {
 
 input,
 button {
-  font-family: inherit;
+  font-family: "Geist", system-ui, sans-serif;
 }
 
 @keyframes fadeInUp {
@@ -285,6 +285,6 @@ dark {
   }
   body {
     @apply bg-background text-foreground;
-    font-family: var(--font-sans);
+    font-family: "Geist", system-ui, sans-serif;
   }
 }
