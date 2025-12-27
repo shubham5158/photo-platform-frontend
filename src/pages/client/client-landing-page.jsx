@@ -19,18 +19,6 @@ const HomePage = () => {
     document.querySelector(id)?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const openGallery = () => {
-    const code = prompt("Enter your gallery code");
-    const galleryCode = code?.trim();
-
-    if (!galleryCode) {
-      toastError("Please enter your gallery code");
-      return;
-    }
-
-    navigate(`/g/${galleryCode}`);
-  };
-
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* ================= NAVBAR ================= */}
@@ -58,10 +46,12 @@ const HomePage = () => {
             >
               Services
             </a>
-            <Button variant="outline" size="sm" onClick={openGallery}>
+            <Button variant="outline" size="sm" onClick={() => navigate("/admin/login")}>
               Client Access
             </Button>
-            <Button size="sm">Admin</Button>
+            <Button size="sm" onClick={() => navigate("/admin/login")}>
+              Admin
+            </Button>
           </div>
         </div>
       </nav>
