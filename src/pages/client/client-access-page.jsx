@@ -46,14 +46,16 @@ const ClientAccessPage = () => {
       <div className="max-w-md w-full bg-card border border-border rounded-xl shadow-lg p-6">
         {/* HEADER */}
         <div className="text-center mb-6">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4">
-            <div className="flex items-center gap-2 mb-3">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-primary/10 rounded-full mb-4">
+            <div className="flex flex-col items-center">
               <img
                 src="/logo.png"
                 alt="Hemant Gogawale Photography"
-                className="h-7 w-auto"
+                className="h-8 w-auto mb-1"
               />
-              <span className="font-bold">Hemant Gogawale Photography</span>
+              <span className="text-xs font-semibold text-center">
+                Hemant Gogawale Photography
+              </span>
             </div>
           </div>
 
