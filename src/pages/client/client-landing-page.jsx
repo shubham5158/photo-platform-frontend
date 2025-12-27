@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { toastError } from "../../utils/toast.jsx";
 import ClientLandingSkeleton from "../../components/ui/ClientLandingSkeleton.jsx";
-import { Camera, Zap, Shield, Award, ArrowRight, Instagram, Mail } from "lucide-react"
-import PillButton from "../../components/ui/Button.jsx";
 
 const portfolioImages = [
   "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e",
@@ -80,44 +78,7 @@ const ClientLandingPage = () => {
       </header> */}
 
       {/* Navigation */}
-      <Link className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-lg border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-2">
-              <Camera className="h-8 w-8 text-primary" />
-              <span className="text-xl font-bold">Hemant Gogawale Photography</span>
-            </div>
-            <div className="hidden md:flex items-center gap-6">
-              <Link
-                href="#portfolio"
-                className="text-sm font-medium hover:text-primary transition-colors"
-              >
-                Portfolio
-              </Link>
-              <Link
-                href="#services"
-                className="text-sm font-medium hover:text-primary transition-colors"
-              >
-                Services
-              </Link>
-              <Link
-                href="#about"
-                className="text-sm font-medium hover:text-primary transition-colors"
-              >
-                About
-              </Link>
-              <Link href="/admin/login">
-                <PillButton variant="outline" size="sm">
-                  Client Access
-                </PillButton>
-              </Link>
-              <Link href="/admin/login">
-                <PillButton size="sm">Admin</PillButton>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </Link>
+      
 
       {/* ================= HERO ================= */}
       <section className="relative h-[75vh] flex items-center justify-center">
@@ -171,7 +132,10 @@ const ClientLandingPage = () => {
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {portfolioImages.map((src, i) => (
-            <div key={i} className="relative overflow-hidden rounded-xl group">
+            <div
+              key={i}
+              className="relative overflow-hidden rounded-xl group"
+            >
               <img
                 src={src}
                 alt=""
@@ -192,8 +156,7 @@ const ClientLandingPage = () => {
         <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-6 px-6">
           <div className="bg-slate-800/70 border border-slate-700 p-5 rounded-xl">
             <p className="text-slate-300 text-sm">
-              “Super smooth experience. Photos were stunning and easy to
-              download.”
+              “Super smooth experience. Photos were stunning and easy to download.”
             </p>
             <p className="mt-3 text-amber-300 text-sm">— Rohit & Anjali</p>
           </div>
@@ -209,8 +172,7 @@ const ClientLandingPage = () => {
 
       {/* ================= FOOTER ================= */}
       <footer className="text-center py-8 text-slate-500 text-xs">
-        © {new Date().getFullYear()} Hemant Gogawale Photography • All Rights
-        Reserved
+        © {new Date().getFullYear()} Hemant Gogawale Photography • All Rights Reserved
       </footer>
     </div>
   );
