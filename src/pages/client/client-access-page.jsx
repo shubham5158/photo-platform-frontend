@@ -89,14 +89,23 @@ const ClientAccessPage = () => {
         </form>
 
         {/* FOOTER */}
-        <div className="mt-6 pt-6 border-t border-border text-center">
-          <p className="text-sm text-muted-foreground mb-2">
+        <div className="mt-6 pt-6 border-t border-border text-center space-y-3">
+          <p className="text-sm text-muted-foreground">
             Don’t have an access code?
           </p>
 
+          {/* 👉 CLIENT LOGIN */}
+          <Link
+            to="/login"
+            className="inline-flex items-center justify-center w-full text-sm font-medium text-primary hover:underline"
+          >
+            Login as Client
+          </Link>
+
+          {/* BACK */}
           <Link
             to="/"
-            className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
+            className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:underline"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Home
